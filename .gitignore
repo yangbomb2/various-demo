@@ -1,0 +1,11 @@
+.tmp
+/.sass-cache
+/build
+/dist
+/app/css
+/app/components
+/app/js/vendor
+/app/src
+._*
+.DS_Store
+node_modules/

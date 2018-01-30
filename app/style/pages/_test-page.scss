@@ -1,0 +1,15 @@
+/**
+* Test Page
+* Use pages to override positional features of components on the page
+*
+* @author <fill-me>
+*/
+.test-page {
+
+	.test-component {
+		position: absolute;
+		top: 0;
+		left: 30px;
+	}
+
+}

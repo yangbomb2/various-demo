@@ -1,0 +1,40 @@
+/**
+* Base variables and function definitions
+*
+* @section framework
+*/
+
+// ---------------------------------------------------------------------------
+// Base variables
+
+$base-font-size: 10px;
+$base-line-height: 1.231em;
+
+
+// ---------------------------------------------------------------------------
+// Breakpoints (default is same as Bootstrap 3)
+$bp-mobile: 480px;
+$bp-tablet: 768px;
+$bp-desktop-small: 992px;
+$bp-desktop-large: 1200px;
+
+
+// ---------------------------------------------------------------------------
+// Colors
+
+// Generics
+$color-blue: rgb(0, 0, 255);
+$color-white: rgb(255, 255, 255);
+$color-black: rgb(0, 0, 0);
+
+// UI colors
+// Button colors
+
+// Font colors
+
+
+// ---------------------------------------------------------------------------
+// Font stack
+
+$font-stack-regular: Arial, Helvetica, 'Helvetica Neue', sans-serif;
+$font-stack-header: Arial, Helvetica, 'Helvetica Neue', sans-serif;

@@ -1,0 +1,44 @@
+/**
+* Test component
+*
+* @section Components
+* @author min
+*/
+
+@import '../base';
+
+// Component block
+.testBox {
+	position: relative;
+	width: 300px;
+	height: 250px;
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 15px;
+
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	background: #131313;
+	color: #efefef;
+
+	h2 {
+		flex: 0 0 100%;
+		display: block;
+		text-align: center;
+	}
+
+	button {
+		appearance: button;
+		border-radius: 5px;
+		background: #04a6fb;
+		border: 0;
+		padding: 15px;
+		color: #efefef;
+	}
+
+	&__title {
+	}
+	// background-image: url(../../../asset/image/test1.png);
+}

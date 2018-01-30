@@ -1,0 +1,29 @@
+exports[`test react link changes state on hover 1`] = `
+<a
+  className="normal"
+  href="http://www.facebook.com"
+  onMouseEnter={[Function]}
+  onMouseLeave={[Function]}>
+  Facebook
+</a>
+`;
+
+exports[`test react link changes state on hover 2`] = `
+<a
+  className="hovered"
+  href="http://www.facebook.com"
+  onMouseEnter={[Function]}
+  onMouseLeave={[Function]}>
+  Facebook
+</a>
+`;
+
+exports[`test react link changes state on hover 3`] = `
+<a
+  className="normal"
+  href="http://www.facebook.com"
+  onMouseEnter={[Function]}
+  onMouseLeave={[Function]}>
+  Facebook
+</a>
+`;

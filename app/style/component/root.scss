@@ -1,0 +1,22 @@
+/**
+* Root component
+*
+* @section Components
+* @author min
+*/
+
+@import '../base';
+
+.root {
+	overflow: hidden;
+	display: flex;
+
+	ul {
+		background: white;
+		width: 100%;
+	}
+
+}
+
+.rootInner {
+}

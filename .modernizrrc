@@ -1,0 +1,13 @@
+{
+  "minify": true,
+  "options": [
+    "setClasses",
+    "mq",
+    "testProp"
+  ],
+  "feature-detects": [
+    "touchevents",
+    "webgl",
+    "es6/promises"
+  ]
+}

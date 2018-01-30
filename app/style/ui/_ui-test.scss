@@ -1,0 +1,35 @@
+/**
+* UI Test
+* Use UI elements to create basic user-select: features like buttons or tables
+*
+* @author <fill-me>
+*/
+
+// UI variables
+$ui-test-color-variable: #000;
+
+// UI block
+.ui-test {
+	position: relative;
+}
+
+// UI elements
+.ui-test__element {
+	@include clearfix();
+}
+
+// UI sub-components (could be icons nested inside a button)
+.ui-test .sub-component {
+	margin-top: 20px;
+}
+
+// UI modifiers
+.ui-test--modifier {
+	@include clearfix();
+
+	background: $ui-test-color-variable;
+
+	.ui-test__element {
+		display: none;
+	}
+}

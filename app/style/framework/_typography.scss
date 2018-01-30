@@ -1,0 +1,26 @@
+/**
+* Base typographical setup (vertical rythm etc)
+*
+* @section Layout
+* 
+*/
+
+// Typography
+
+h1,
+h2,
+h3,
+h4 {
+	font-family: $font-stack-header;
+	font-weight: bold;
+	line-height: 1.1em;
+}
+
+p {
+	margin: 0 0 em(20px);
+}
+
+.entry {
+	font-size: em(14px);
+	line-height: 1.5em;
+}
