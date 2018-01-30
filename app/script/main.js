@@ -11,6 +11,10 @@ import _ from 'lodash';
 // custom polyfills
 // ...
 
+// bootstrap
+// https://getbootstrap.com/docs/4.0/getting-started/webpack/
+import 'bootstrap';
+
 // inject index style
 import 'StyleRoot/style.scss'; // generic styles(not module specific)
 
@@ -33,8 +37,7 @@ const APP_DATA = {
 
 window.addEventListener('DOMContentLoaded', (e) => {
 
-  console.log('== dom ready ==');
-
+  console.log('== image + texture ==');
 
 });
 

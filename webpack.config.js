@@ -167,6 +167,7 @@ module.exports = {
     ],
     vendor: [
       'lodash',
+      'simple-color-picker',
     ],
   },
 

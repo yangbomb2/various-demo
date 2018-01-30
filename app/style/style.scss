@@ -4,8 +4,10 @@
 * @section Setup
 * @author <min>
 */
-// ---------------------------------------------------------------------------
-// Fonts
+
+// bootstrap
+// @import "custom";
+@import "~bootstrap/scss/bootstrap";
 
 // ---------------------------------------------------------------------------
 // Framework
@@ -17,7 +19,6 @@
 // Default typography for the site
 @import 'framework/typography';
 
-// TODO:
 // @import '../assets/fonts/icons/icons';
 
 // Modules
