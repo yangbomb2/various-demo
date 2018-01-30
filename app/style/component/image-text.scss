@@ -25,6 +25,10 @@ $image-width: 50%;
 
 .container {}
 
+.row {
+  position: relative;
+}
+
 .ui-container {
   background-color: #eee;
   padding: 10px;
@@ -37,7 +41,14 @@ $image-width: 50%;
 
   input[type=text] {}
 
+  &.image-load {
+    label {
+      display: block;
+    }
+  }
 }
+
+
 
 h2{
   font-size: 24px;
@@ -49,12 +60,27 @@ h2{
   }
 }
 
+.buttons-group {
+  text-align: center;
+
+  button + button {
+    margin-left: 15px;
+  }
+}
+
 button {}
 
 #image-container,
 #canvas-container{
   padding-left:0;
   padding-right:0;
+}
+
+.color-picker {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
 }
 
 .base-image{

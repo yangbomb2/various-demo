@@ -15,11 +15,13 @@ import imageSrc4 from 'AssetRoot/image/headshot4.jpg';
 
 // dependencies
 import ColorPicker from 'simple-color-picker';
+import _ from 'lodash';
 import { imageLoader } from '../util';
 
-let imageContainer = document.querySelector('#image-container');
-let canvasContainer = document.querySelector('#canvas-container');
+const imageContainer = document.querySelector('#image-container');
+const canvasContainer = document.querySelector('#canvas-container');
 
+// vars
 let baseCanvas;
 let baseCtx;
 let textCanvas;
@@ -52,15 +54,6 @@ const measureText = (font) => {
 
 }
 
-const reset = () => {
-
-  text = origText;
-
-  if (baseCtx) baseCtx.clearRect(0,0, baseCanvas.width, baseCanvas.height);
-  if (baseCtx) textCtx.clearRect(0,0, textCanvas.width, textCanvas.height);
-
-}
-
 const draw = (srcImage) => {
 
   if (!srcImage) return;
@@ -72,14 +65,14 @@ const draw = (srcImage) => {
   baseCanvas.height =  srcHeight;
 
   // font options(some of these should be from UI)
-  let allCap = appOption.allCap; // uppercase || lowercase
-  let fontSize = parseInt(appOption.fontSize) || 20;
-  let lingHeight = fontSize * 1;
-  let fontFamily = appOption.fontFamily || 'Arial';
-  let fontColor = appOption.fontColor || '#fff';
-  let bgColor = appOption.bgColor || '#333';
-  let font = fontSize + 'px ' + fontFamily;
-  let repeatText = appOption.repeatText;
+  const allCap = appOption.allCap; // uppercase || lowercase
+  const fontSize = parseInt(appOption.fontSize, 10) || 20;
+  const lingHeight = fontSize * 1;
+  const fontFamily = appOption.fontFamily || 'Arial';
+  const fontColor = appOption.fontColor || '#fff';
+  const bgColor = appOption.bgColor || '#333';
+  const font = `${fontSize}px ${fontFamily}`;
+  const repeatText = appOption.repeatText;
 
   // text cap
   text = allCap ? text.toUpperCase() : text.toLowerCase();
@@ -87,11 +80,12 @@ const draw = (srcImage) => {
 
   // for pre measurement
   // approximate total line length to fill the whole image
-  let minLineLength = Math.ceil(srcHeight/fontSize);
+  const minLineLength = Math.ceil(srcHeight/fontSize);
+
   let metrix;
   let lineLength;
 
-  const caculateMetrix = function() {
+  const caculateMetrix = () => {
 
     metrix = measureText(font)(text);
 
@@ -127,8 +121,7 @@ const draw = (srcImage) => {
   // get each iamge data per line
   for (let i = 0; i < minLineLength; i++) {
 
-    let imageData = textCtx.getImageData(srcWidth * (i % lineLength), 0, srcWidth, lingHeight);
-
+    const imageData = textCtx.getImageData(srcWidth * (i % lineLength), 0, srcWidth, lingHeight);
     baseCtx.putImageData(imageData, 0, i * lingHeight);
 
   }
@@ -136,29 +129,19 @@ const draw = (srcImage) => {
   // draw image src under
   baseCtx.save();
   baseCtx.globalCompositeOperation = appOption.blendMode;
-  baseCtx.drawImage(srcImage, 0,0,srcWidth,srcHeight);
+  baseCtx.drawImage(srcImage, 0, 0, srcWidth, srcHeight);
   baseCtx.restore();
 
 }
 
-// color pikcer
-const colorPicker = new ColorPicker({
-  el: document.querySelector('.color-picker'),
-  color: defaultBgColor,
-  background: '#fff',
-});
+const reset = () => {
 
-// color picker
-colorPicker.onChange(function(hexStringColor) {
+  text = origText;
 
-  document.getElementById('bg-color').value = hexStringColor;
+  if (baseCtx) baseCtx.clearRect(0,0, baseCanvas.width, baseCanvas.height);
+  if (textCtx) textCtx.clearRect(0,0, textCanvas.width, textCanvas.height);
 
-  appOption.bgColor = hexStringColor;
-  reset();
-  draw(srcImage);
-
-});
-
+}
 
 /**
  * Resize
@@ -168,8 +151,7 @@ const resize = (e) => {
   if (srcImage) {
 
     reset();
-
-    if (srcImage) draw(srcImage);
+    draw(srcImage);
 
   }
 
@@ -208,13 +190,10 @@ const uiHandler = (e) => {
 
 }
 
-
 /**
  * Image load
  */
 const load = (imageUrl) => {
-
-  console.log(imageUrl);
 
   // image load
   imageLoader(imageUrl)
@@ -222,36 +201,34 @@ const load = (imageUrl) => {
 
       const { image, type } = response;
 
-      image.className = 'base-image';
+      if(!image.classList.contains('base-image')) image.classList.add('base-image');
 
       srcImage = image;
 
       imageContainer.innerHTML = '';
-      imageContainer.appendChild(image);
+      imageContainer.appendChild(srcImage);
 
-      // draw(srcImage);
-      // resize();
+      setTimeout(draw, 500, image);
 
     })
     .catch((e) => console.log(e));
 
 }
 
+// TODO, use event delegation
 const initUI = () => {
 
-  Array.prototype.slice.call(document.querySelectorAll('.btn')).forEach((btn,i) => {
+  Array.prototype.slice.call(document.getElementsByClassName('btn')).forEach((btn,i) => {
 
     btn.addEventListener('click', (e) => {
 
       switch(e.target.getAttribute('id')) {
 
       case 'clear':
-        console.log(1)
         reset();
         break;
 
       case 'redraw':
-        console.log(2)
         reset();
         draw(srcImage);
         break;
@@ -298,9 +275,29 @@ const initUI = () => {
 
   });
 
+  // color pikcer
+  const colorPicker = new ColorPicker({
+    el: document.querySelector('.color-picker'),
+    color: defaultBgColor,
+    background: '#fff',
+  });
+
+  // color picker
+  colorPicker.onChange((hexStringColor) => {
+
+    document.getElementById('bg-color').value = hexStringColor;
+
+    appOption.bgColor = hexStringColor;
+
+    reset();
+    draw(srcImage);
+
+  });
+
 }
 
 export default {
+
   init: (data) => {
 
     // canvas
@@ -315,15 +312,13 @@ export default {
     textCtx = textCanvas.getContext('2d');
     canvasContainer.appendChild(textCanvas);
 
-
     initUI();
 
     // load first image
     load(document.getElementById('image-select').options[0].value);
 
-    window.addEventListener('resize', resize);
-
-    resize();
+    // resize
+    window.addEventListener('resize', _.debounce(resize, 300));
 
   },
 
