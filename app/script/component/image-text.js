@@ -45,6 +45,7 @@ const APP_OPTION = {
   repeatText: false,
   blendMode: 'source-atop', // defalut
   supportedTypes: /(png|jpg|jpeg)/i,
+  isLocal: window.location.href.indexOf('localhost') !== -1,
 };
 
 const measureText = (font) => {
@@ -167,8 +168,11 @@ const resize = (e) => {
  */
 const load = (imageUrl) => {
 
+  const isBase64 = imageUrl.indexOf('base64') !== -1;
+  const url = APP_OPTION.isLocal || isBase64 ? imageUrl : `${document.baseURI}${imageUrl}`;
+
   // image load
-  imageLoader(imageUrl)
+  imageLoader(url)
     .then((response) => {
 
       const { image, type } = response;
@@ -298,6 +302,7 @@ const initUI = () => {
 
   });
 
+  // select
   document.getElementById('image-select').addEventListener('change', (e) => {
 
     const { options, selectedIndex } = e.target;
@@ -306,6 +311,7 @@ const initUI = () => {
 
   });
 
+  // blend-mode selet
   document.getElementById('blend-mode').addEventListener('change', (e) => {
 
     const { options, selectedIndex } = e.target;
@@ -371,11 +377,11 @@ export default {
 
     initUI();
 
-    // load first image
-    load(document.getElementById('image-select').options[0].value);
-
     // resize
     window.addEventListener('resize', _.debounce(resize, 300));
+
+    // load first image
+    load(document.getElementById('image-select').options[0].value);
 
   },
 

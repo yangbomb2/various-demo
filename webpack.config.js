@@ -19,7 +19,7 @@ const postImport = require('postcss-import');
 const autoprefixer = require('autoprefixer'); // https://github.com/postcss/autoprefixer
 
 // when app is served in subdomain
-const basename = '/';
+const basename = '/demo/image-texture/';
 
 // config
 const config = {
