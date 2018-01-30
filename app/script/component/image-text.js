@@ -30,10 +30,7 @@ let textCtx;
 let srcImage;
 let defaultBgColor = document.getElementById('bg-color').value;
 let defaultFontSize = document.getElementById('font-size').value;
-
-// TODO, to json
-const origText = 'Lorem Ipsum mbled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
-let text = 'Lorem Ipsum mbled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
+let text = '';
 
 // font option
 const APP_OPTION = {
@@ -46,6 +43,7 @@ const APP_OPTION = {
   blendMode: 'source-atop', // defalut
   supportedTypes: /(png|jpg|jpeg)/i,
   isLocal: window.location.href.indexOf('localhost') !== -1,
+  defaultText: 'Lorem Ipsum mbled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.',
 };
 
 const measureText = (font) => {
@@ -79,26 +77,29 @@ const draw = (image) => {
   const font = `${fontSize}px ${fontFamily}`;
   const repeatText = APP_OPTION.repeatText;
 
-  // text cap
-  text = allCap ? text.toUpperCase() : text.toLowerCase();
-  text = text.trim();
+  // text
+  let textureText = text.length > 1 ? text : APP_OPTION.defaultText;
+  textureText = textureText[allCap ? 'toUpperCase' : 'toLowerCase']();
+  textureText = textureText.trim();
+
+  console.log(textureText);
 
   // for pre measurement
   // approximate total line length to fill the whole image
-  const minLineLength = Math.ceil(srcHeight/fontSize);
+  const minLineLength = Math.ceil(srcHeight / fontSize);
 
   let metrix;
   let lineLength;
 
   const caculateMetrix = () => {
 
-    metrix = measureText(font)(text);
+    metrix = measureText(font)(textureText);
 
     lineLength = Math.ceil(metrix.width/srcWidth);
 
     if (lineLength < minLineLength) {
 
-      text +=  text;
+      textureText +=  textureText;
 
       caculateMetrix();
 
@@ -120,7 +121,7 @@ const draw = (image) => {
   textCtx.fillStyle = fontColor;
   textCtx.textAlign = 'start';
   textCtx.textBaseline = 'top';
-  textCtx.fillText(text,0,0);
+  textCtx.fillText(textureText, 0, 0);
 
   // draw each row(line) of text cavnas onto base cavnas
   // get each iamge data per line
@@ -140,8 +141,6 @@ const draw = (image) => {
 }
 
 const reset = () => {
-
-  text = origText;
 
   if (baseCtx) baseCtx.clearRect(0,0, baseCanvas.width, baseCanvas.height);
   if (textCtx) textCtx.clearRect(0,0, textCanvas.width, textCanvas.height);
@@ -284,19 +283,16 @@ const initUI = () => {
 
   });
 
-  document.querySelectorAll('.ui-input').forEach((uiInput, i) => {
+  Array.from(document.querySelectorAll('.ui-input')).forEach((uiInput, i) => {
 
     const input = uiInput.getElementsByTagName('INPUT')[0];
 
-    if (input.type === 'number' || input.type === 'text') {
+    if (input) {
 
-      input.addEventListener('input', uiHandler, false);
+      const type = input.type;
+      const evt = type === 'checkbox' || type === 'radio' ? 'change' : 'input';
 
-    }
-
-    if (input.type === 'checkbox' || input.type === 'radio') {
-
-      input.addEventListener('change', uiHandler, false);
+      input.addEventListener(evt, uiHandler, false);
 
     }
 
@@ -320,6 +316,15 @@ const initUI = () => {
 
     reset();
     draw(srcImage);
+
+  });
+
+  console.log(document.getElementById('text-area'));
+
+  // text-area
+  document.getElementById('text-area').addEventListener('input', (e) => {
+
+    text = e.target.value;
 
   });
 
