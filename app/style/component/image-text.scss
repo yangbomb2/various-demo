@@ -37,18 +37,32 @@ $image-width: 50%;
 
 .ui-input {
 
-  label {}
+  .error {
+    font-size: 12px;
+    color: red;
+    display: block;
+    opacity: 0;
+  }
+
+  label {
+    display: block;
+  }
 
   input[type=text] {}
+  
+  input[type=number] {}
 
-  &.image-load {
-    label {
-      display: block;
+  input[type=file] {
+    display: block;
+    margin: 5px 0;
+  }
+
+  &.show-error {
+    .error {
+      opacity: 1;
     }
   }
 }
-
-
 
 h2{
   font-size: 24px;

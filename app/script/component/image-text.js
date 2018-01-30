@@ -20,6 +20,7 @@ import { imageLoader } from '../util';
 
 const imageContainer = document.querySelector('#image-container');
 const canvasContainer = document.querySelector('#canvas-container');
+const fileUI = document.querySelector('.image-upload');
 
 // vars
 let baseCanvas;
@@ -31,11 +32,11 @@ let defaultBgColor = document.getElementById('bg-color').value;
 let defaultFontSize = document.getElementById('font-size').value;
 
 // TODO, to json
-let origText = 'Lorem Ipsum mbled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
+const origText = 'Lorem Ipsum mbled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
 let text = 'Lorem Ipsum mbled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
 
 // font option
-const appOption = {
+const APP_OPTION = {
   allCap: true,// uppercase || lowercase
   fontSize: defaultFontSize,
   fontFamily: 'Arial',
@@ -43,6 +44,7 @@ const appOption = {
   bgColor: '#333',
   repeatText: false,
   blendMode: 'source-atop', // defalut
+  supportedTypes: /(png|jpg|jpeg)/i,
 };
 
 const measureText = (font) => {
@@ -54,9 +56,11 @@ const measureText = (font) => {
 
 }
 
-const draw = (srcImage) => {
+const draw = (image) => {
 
-  if (!srcImage) return;
+  if (!image) return;
+
+  srcImage = image;
 
   const srcWidth = srcImage.width;
   const srcHeight = srcImage.height;
@@ -65,14 +69,14 @@ const draw = (srcImage) => {
   baseCanvas.height =  srcHeight;
 
   // font options(some of these should be from UI)
-  const allCap = appOption.allCap; // uppercase || lowercase
-  const fontSize = parseInt(appOption.fontSize, 10) || 20;
+  const allCap = APP_OPTION.allCap; // uppercase || lowercase
+  const fontSize = parseInt(APP_OPTION.fontSize, 10) || 20;
   const lingHeight = fontSize * 1;
-  const fontFamily = appOption.fontFamily || 'Arial';
-  const fontColor = appOption.fontColor || '#fff';
-  const bgColor = appOption.bgColor || '#333';
+  const fontFamily = APP_OPTION.fontFamily || 'Arial';
+  const fontColor = APP_OPTION.fontColor || '#fff';
+  const bgColor = APP_OPTION.bgColor || '#333';
   const font = `${fontSize}px ${fontFamily}`;
-  const repeatText = appOption.repeatText;
+  const repeatText = APP_OPTION.repeatText;
 
   // text cap
   text = allCap ? text.toUpperCase() : text.toLowerCase();
@@ -128,7 +132,7 @@ const draw = (srcImage) => {
 
   // draw image src under
   baseCtx.save();
-  baseCtx.globalCompositeOperation = appOption.blendMode;
+  baseCtx.globalCompositeOperation = APP_OPTION.blendMode;
   baseCtx.drawImage(srcImage, 0, 0, srcWidth, srcHeight);
   baseCtx.restore();
 
@@ -157,38 +161,6 @@ const resize = (e) => {
 
 }
 
-/**
- * UI Handler
- */
-const uiHandler = (e) => {
-
-  switch(e.target.id) {
-
-  case 'font-size':
-    appOption.fontSize = e.target.value;
-    break;
-
-  case 'bg-color':
-    appOption.bgColor = e.target.value;
-    break;
-
-  case 'all-cap':
-    appOption.allCap = e.target.checked;
-    break;
-
-  case 'repeat-text':
-    appOption.repeatText = e.target.checked;
-    break;
-
-  default:
-    // do nothing
-  }
-
-  reset();
-
-  draw(srcImage);
-
-}
 
 /**
  * Image load
@@ -203,15 +175,85 @@ const load = (imageUrl) => {
 
       if(!image.classList.contains('base-image')) image.classList.add('base-image');
 
-      srcImage = image;
-
+      // attach to dom
       imageContainer.innerHTML = '';
-      imageContainer.appendChild(srcImage);
+      imageContainer.appendChild(image);
 
       setTimeout(draw, 500, image);
 
     })
     .catch((e) => console.log(e));
+
+}
+
+
+/**
+ * UI Handler
+ */
+const uiHandler = (e) => {
+
+  const t = e.target;
+
+  switch(e.target.id) {
+
+  case 'font-size':
+    APP_OPTION.fontSize = t.value;
+    break;
+
+  case 'bg-color':
+    APP_OPTION.bgColor = t.value;
+    break;
+
+  case 'all-cap':
+    APP_OPTION.allCap = t.checked;
+    break;
+
+  case 'repeat-text':
+    APP_OPTION.repeatText = t.checked;
+    break;
+
+  default:
+    // do nothing
+  }
+
+  reset();
+
+  draw(srcImage);
+
+}
+
+/**
+ * Handle file
+ * @param  {File} file [description]
+ */
+const handleFile = (file) => {
+
+  // check file type(mime)
+  const isSupportedImageType = APP_OPTION.supportedTypes.test(file.type);
+
+  // error span state
+  fileUI.classList[isSupportedImageType ? 'remove' : 'add']('show-error');
+
+  if(isSupportedImageType) {
+
+    // file reader
+    const reader = new FileReader();
+    reader.onload = (e) => {
+
+      // base64 encoded
+      load(e.target.result);
+
+    };
+
+    reader.readAsDataURL(file);
+
+  } else {
+
+    // log
+    fileUI.querySelector('span.error').innerHTML = `${file.type} is not supported`;
+    console.log(`${file.type} is not supported`);
+
+  }
 
 }
 
@@ -268,7 +310,7 @@ const initUI = () => {
 
     const { options, selectedIndex } = e.target;
 
-    appOption.blendMode = options[selectedIndex].value;
+    APP_OPTION.blendMode = options[selectedIndex].value;
 
     reset();
     draw(srcImage);
@@ -287,10 +329,25 @@ const initUI = () => {
 
     document.getElementById('bg-color').value = hexStringColor;
 
-    appOption.bgColor = hexStringColor;
+    APP_OPTION.bgColor = hexStringColor;
 
     reset();
     draw(srcImage);
+
+  });
+
+  // file input
+  fileUI.querySelector('input[type="file"]').addEventListener('change', (e) => {
+
+    // const files = this.files;
+    const files = e.target.files;
+
+    for (let i = 0, numFiles = files.length; i < numFiles; i++) {
+
+      const file = files[i];
+      handleFile(file);
+
+    }
 
   });
 
