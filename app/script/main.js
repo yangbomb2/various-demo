@@ -23,6 +23,8 @@ import browser from 'browser-detect';
 // each project
 import imageText from './component/image-text';
 
+
+
 // render dom
 const { name, versionNumber } = browser();
 const browserVer = `${name}-${parseInt(versionNumber, 10)}`.toLowerCase();
