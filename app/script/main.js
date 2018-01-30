@@ -11,10 +11,17 @@ import _ from 'lodash';
 // custom polyfills
 // ...
 
+// bootstrap
+// https://getbootstrap.com/docs/4.0/getting-started/webpack/
+import 'bootstrap';
+
 // inject index style
 import 'StyleRoot/style.scss'; // generic styles(not module specific)
 
 import browser from 'browser-detect';
+
+// each project
+import imageText from './component/image-text';
 
 // render dom
 const { name, versionNumber } = browser();
@@ -22,7 +29,7 @@ const browserVer = `${name}-${parseInt(versionNumber, 10)}`.toLowerCase();
 document.body.classList.add(browserVer);
 
 const APP_DATA = {
-  name: 'simple app2', // name of the project
+  name: 'Image processing + text', // name of the project
 };
 
 // (function(appData){
@@ -33,8 +40,8 @@ const APP_DATA = {
 
 window.addEventListener('DOMContentLoaded', (e) => {
 
-  console.log('== dom ready ==');
-
+  console.log(APP_DATA);
+  console.log(imageText);
 
 });
 

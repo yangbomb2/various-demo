@@ -1,0 +1,69 @@
+/*
+  style
+ */
+
+body{
+ background-color: #fff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app{
+  position: relative;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 970px;
+}
+
+$image-width: 50%;
+
+.ui-container{
+  background-color: #eee;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: 'Helvetica', sans-serif;
+
+  h2{
+    font-size: 24px;
+    margin-bottom: 20px;
+
+    &:first-letter{
+      text-transform: uppercase;
+    }
+  }
+}
+
+button {}
+
+.ui-input{
+  label{
+  }
+
+  input[type=text]{
+  }
+}
+
+#image-container,
+#canvas-container{
+  padding-left:0;
+  padding-right:0;
+}
+
+.base-image{
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.base-canvas{
+  display: block;
+}
+.text-canvas{
+  display: none;
+}
