@@ -1,124 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
 {{> ./head}}
+
 <body>
 
-  <div class="app" id="app-root"></div>
+  <div class="app" id="app-root">
+
     <div class="container">
 
-      <h2>Image processing/mapping demo</h2>
-
-      <!-- top ui container-->
-      <div class="ui-container row">
-        <form action="#" id="ui-form">
-
-          <!-- preload images select -->
-          <div class="col-xs-12 col-sm-6">
-            <div class="form-group">
-              <label for="blend-mode">Select preloaded image</label>
-
-              <select name="image-select" id="image-select" class="form-control">
-                <option value="asset/image/headshot1.jpg">headshot1</option>
-                <option value="asset/image/headshot0.jpg">headshot0</option>
-                <option value="asset/image/headshot2.jpg">headshot2</option>
-                <option value="asset/image/headshot3.jpg">headshot3</option>
-                <option value="asset/image/headshot4.jpg">headshot4</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- blendmode select -->
-          <div class="col-xs-12 col-sm-6">
-            <div class="form-group">
-              <label for="blend-mode">Select blend mode</label>
-
-              <select name="blend-mode" id="blend-mode" class="form-control">
-                <option value="source-atop">source-atop</option>
-                <option value="source-over">source-over</option>
-                <option value="source-in">source-in</option>
-                <option value="source-out">source-out</option>
-                <option value="destination-in">destination-in</option>
-                <option value="destination-over">destination-over</option>
-                <option value="destination-out">destination-out</option>
-                <option value="destination-atop">destination-atop</option>
-                <option value="lighter">lighter</option>
-                <option value="copy">copy</option>
-                <option value="xor">xor</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- file upload-->
-          <div class="col-xs-12 col-sm-6">
-            <div class="form-group ui-input">
-              <label for="exampleInputFile">File input(place holder)</label>
-              <input type="file" id="exampleInputFile" disabled>
-              <p class="help-block">this could be in CMS to upload new image</p>
-            </div>
-          </div>
-
-          <!-- font size number input-->
-          <div class="col-xs-12 col-sm-6">
-            <div class="form-group ui-input">
-              <label for="font-size">Font size</label>
-              <input type="number" class="form-control" id="font-size" placeholder="font sinze" value="14">
-            </div>
-          </div>
-
-          <!-- background text input-->
-          <div class="col-xs-12 col-sm-6">
-            <div class="form-group ui-input">
-              <label for="bg-color">Background color</label>
-              <input type="text" class="form-control" id="bg-color" placeholder="Background color">
-            </div>
-
-            <div class="color-picker"></div>
-          </div>
-
-          <!-- all cap checkbox-->
-          <div class="col-xs-12 col-sm-6">
-            <div class="ui-input">
-              <div class="checkbox">
-                <label>
-                  <input type="checkbox" id="all-cap" checked> All cap
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- repeat text checkbox-->
-          <div class="col-xs-12 col-sm-6">
-            <div class="ui-input">
-              <div class="checkbox">
-                <label>
-                  <input type="checkbox" id="repeat-text" checked disabled> Repeat text
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- buttons -->
-          <div class="col-xs-12">
-            <div class="buttons-group">
-              <button type="button" id="redraw" class="btn btn-primary">Redraw</button>
-              <button type="button" id="clear" class="btn btn-default">Clear</button>
-            </div>
-          </div>
-
-        </form>
+      <div class="row">
+        <h2>Image processing/mapping demo</h2>
       </div>
 
       <div class="row">
-        <div class="col-xs-12">
-          <br>
+
+        <!-- image + canvas -->
+        <div class="col-sm-12">
           <p>*Source image is located on the left, Textured image is located on the right</p>
-          <br>
         </div>
-        <div class="col-xs-12 col-sm-6" id="image-container"></div>
-        <div class="col-xs-12 col-sm-6" id="canvas-container"></div>
+
+        <div class="col-sm-6" id="image-container"></div>
+        <div class="col-sm-6" id="canvas-container"></div>
+
+
+      </div>
+
+
+      <div class="row">
+        <!-- ui container-->
+        <div class="ui-container col-sm-12">
+
+          <form action="#" id="ui-form">
+
+            <!-- preload images select -->
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label for="blend-mode">Select preloaded image</label>
+
+                <select name="image-select" id="image-select" class="form-control">
+                  <option value="/asset/image/headshot0.jpg">image 1</option>
+                  <option value="/asset/image/headshot1.jpg">image 2</option>
+                  <option value="/asset/image/headshot2.jpg">image 3</option>
+                  <option value="/asset/image/headshot3.jpg">image 4</option>
+                  <option value="/asset/image/headshot4.jpg">image 5</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- blendmode select -->
+            <div class="col-xs-12">
+              <div class="form-group">
+
+                <label for="blend-mode">Select blend mode</label>
+
+                <select name="blend-mode" id="blend-mode" class="form-control">
+                  <option value="source-atop">source-atop</option>
+                  <option value="source-over">source-over</option>
+                  <option value="source-in">source-in</option>
+                  <option value="source-out">source-out</option>
+                  <option value="destination-in">destination-in</option>
+                  <option value="destination-over">destination-over</option>
+                  <option value="destination-out">destination-out</option>
+                  <option value="destination-atop">destination-atop</option>
+                  <option value="lighter">lighter</option>
+                  <option value="copy">copy</option>
+                  <option value="xor">xor</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- file upload-->
+            <div class="col-xs-12">
+              <div class="form-group ui-input">
+                <label for="exampleInputFile">File input(place holder)</label>
+                <input type="file" id="exampleInputFile" disabled>
+                <p class="help-block">this could be in CMS to upload new image</p>
+              </div>
+            </div>
+
+            <!-- font size number input-->
+            <div class="col-xs-12">
+              <div class="form-group ui-input">
+                <label for="font-size">Font size</label>
+                <input type="number" class="form-control" id="font-size" placeholder="font sinze" value="14">
+              </div>
+            </div>
+
+            <!-- background text input-->
+            <div class="col-xs-12">
+              <div class="form-group ui-input">
+                <label for="bg-color">Background color</label>
+                <input type="text" class="form-control" id="bg-color" placeholder="Background color">
+              </div>
+
+              <div class="color-picker"></div>
+            </div>
+
+            <!-- all cap checkbox-->
+            <div class="col-xs-12">
+              <div class="ui-input">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" id="all-cap" checked> All cap
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- repeat text checkbox-->
+            <div class="col-xs-126">
+              <div class="ui-input">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" id="repeat-text" checked disabled> Repeat text
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- buttons -->
+            <div class="col-xs-12">
+              <div class="buttons-group">
+                <button type="button" id="redraw" class="btn btn-primary">Redraw</button>
+                <button type="button" id="clear" class="btn btn-default">Clear</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
       </div>
 
     </div>
+
   </div>
 </body>
+
 </html>

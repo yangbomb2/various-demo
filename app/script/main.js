@@ -40,8 +40,8 @@ const APP_DATA = {
 
 window.addEventListener('DOMContentLoaded', (e) => {
 
-  console.log(APP_DATA);
-  console.log(imageText);
+  // image + text
+  imageText.init(APP_DATA);
 
 });
 

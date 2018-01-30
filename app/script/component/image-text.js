@@ -19,6 +19,7 @@ import { imageLoader } from '../util';
 
 let imageContainer = document.querySelector('#image-container');
 let canvasContainer = document.querySelector('#canvas-container');
+
 let baseCanvas;
 let baseCtx;
 let textCanvas;
@@ -211,23 +212,25 @@ const uiHandler = (e) => {
 /**
  * Image load
  */
-const load = (srcImg) => {
+const load = (imageUrl) => {
+
+  console.log(imageUrl);
 
   // image load
-  imageLoader(srcImg)
+  imageLoader(imageUrl)
     .then((response) => {
 
-      let img = new Image();
-      img.src = response.src;
-      img.className = 'base-image';
-      srcImage = img;
+      const { image, type } = response;
+
+      image.className = 'base-image';
+
+      srcImage = image;
 
       imageContainer.innerHTML = '';
-      imageContainer.appendChild(img);
+      imageContainer.appendChild(image);
 
-      draw(srcImage);
-
-      resize();
+      // draw(srcImage);
+      // resize();
 
     })
     .catch((e) => console.log(e));
@@ -243,10 +246,12 @@ const initUI = () => {
       switch(e.target.getAttribute('id')) {
 
       case 'clear':
+        console.log(1)
         reset();
         break;
 
       case 'redraw':
+        console.log(2)
         reset();
         draw(srcImage);
         break;
@@ -295,9 +300,8 @@ const initUI = () => {
 
 }
 
-
 export default {
-  init: () => {
+  init: (data) => {
 
     // canvas
     baseCanvas = document.createElement('canvas');
@@ -310,6 +314,7 @@ export default {
     textCanvas.className = 'text-canvas';
     textCtx = textCanvas.getContext('2d');
     canvasContainer.appendChild(textCanvas);
+
 
     initUI();
 

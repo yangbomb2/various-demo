@@ -11,7 +11,7 @@
  * @param  {Number} [loadDelay=300] [each delay]
  * @return {Promise}                [description]
  */
-export default (src, qId, loadDelay = 300) => {
+export default (src, qId, loadDelay = 0) => {
 
   return new Promise((response, reject) => {
 
@@ -49,7 +49,7 @@ export default (src, qId, loadDelay = 300) => {
 
           image.src = src;
 
-        } 
+        }
 
       }, loadDelay);
 
