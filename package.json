@@ -1,11 +1,11 @@
 {
-  "name": "webpack-vanila-boilerplate",
+  "name": "various demos",
   "version": "2.0.0",
-  "description": "webpack-vanila-boilerplate",
+  "description": "variouse demos",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git@bitbucket.org:yangbomb2/webpack-react-boilerplate.git"
+    "url": "git@bitbucket.org:yangbomb2/various-demos.git"
   },
   "scripts": {
     "test": "jest",
