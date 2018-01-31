@@ -1,11 +1,13 @@
 # Project title
 
-Boilerplate project with Webpack 3
+Various demos
+
+- image + text
 
 * developer: Min yang(yangbomb2@gmail.com)
 
 ## Additional information:
-* Boilerplate Webpack 3 + react + redux + react router v4
+* Using boilerplate Webpack 3
 
 ## Code features
 
