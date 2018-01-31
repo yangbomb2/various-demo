@@ -82,8 +82,6 @@ const draw = (image) => {
   textureText = textureText[allCap ? 'toUpperCase' : 'toLowerCase']();
   textureText = textureText.trim();
 
-  console.log(textureText);
-
   // for pre measurement
   // approximate total line length to fill the whole image
   const minLineLength = Math.ceil(srcHeight / fontSize);
@@ -318,8 +316,6 @@ const initUI = () => {
     draw(srcImage);
 
   });
-
-  console.log(document.getElementById('text-area'));
 
   // text-area
   document.getElementById('text-area').addEventListener('input', (e) => {

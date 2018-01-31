@@ -24,15 +24,17 @@ import browser from 'browser-detect';
 import imageText from './component/image-text';
 
 
-
 // render dom
 const { name, versionNumber } = browser();
 const browserVer = `${name}-${parseInt(versionNumber, 10)}`.toLowerCase();
 document.body.classList.add(browserVer);
 
-const APP_DATA = {
-  name: 'Image processing + text', // name of the project
-};
+const rootEl = document.getElementById('app-root');
+const data = rootEl.dataset;
+
+const APP_DATA = Object.assign({
+  el: rootEl,
+}, data);
 
 // (function(appData){
 //
@@ -44,6 +46,7 @@ window.addEventListener('DOMContentLoaded', (e) => {
 
   // image + text
   imageText.init(APP_DATA);
+
 
 });
 
