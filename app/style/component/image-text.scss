@@ -27,6 +27,7 @@ $image-width: 50%;
 
 .row {
   position: relative;
+  overflow: hidden;
 }
 
 .ui-container {
@@ -49,12 +50,16 @@ $image-width: 50%;
   }
 
   input[type=text] {}
-  
+
   input[type=number] {}
 
   input[type=file] {
     display: block;
     margin: 5px 0;
+  }
+
+  textarea {
+    width: 100%;
   }
 
   &.show-error {
