@@ -51,10 +51,8 @@ const APP_DATA = Object.assign({
 window.addEventListener('DOMContentLoaded', (e) => {
 
   // console.log(APP_DATA);
-
   // image + text
   // imageText.init(APP_DATA);
-
   // canvas particle
   cavnasParticle.init(APP_DATA);
 
@@ -63,6 +61,6 @@ window.addEventListener('DOMContentLoaded', (e) => {
 // Webpack Hot Module Replacement API
 if (module.hot) {
 
-  module.hot.accept();
+  // module.hot.accept('./component/canvas-particle');
 
 }
