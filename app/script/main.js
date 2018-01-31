@@ -21,7 +21,13 @@ import 'StyleRoot/style.scss'; // generic styles(not module specific)
 import browser from 'browser-detect';
 
 // each project
-import imageText from './component/image-text';
+// uncomment this per each project
+
+// Image + Text
+// import imageText from './component/image-text';
+
+// Canvas Particle
+import cavnasParticle from './component/canvas-particle';
 
 
 // render dom
@@ -44,9 +50,13 @@ const APP_DATA = Object.assign({
 
 window.addEventListener('DOMContentLoaded', (e) => {
 
-  // image + text
-  imageText.init(APP_DATA);
+  // console.log(APP_DATA);
 
+  // image + text
+  // imageText.init(APP_DATA);
+
+  // canvas particle
+  cavnasParticle.init(APP_DATA);
 
 });
 
