@@ -214,11 +214,11 @@ const simpleRotation = (p) => {
   // get tx, ty
   const tx = cx + Math.cos(newAngle) * r;
   const ty = cy + Math.sin(newAngle) * r;
-  p.state.angle += .02;
+  p.state.angle += .01;
 
   // easing
-  p.state.x += (tx - x) * .25;
-  p.state.y += (ty - y) * .25;
+  p.state.x += (tx - x) * .1;
+  p.state.y += (ty - y) * .1;
 
 }
 
@@ -229,8 +229,10 @@ const simpleRotation = (p) => {
  */
 const simpleOrbit = (p) => {
 
+  const { id } = p.props;
   const { x, y, move, angle } = p.state;
 
+  // prevent self move
   if (move) p.state.move = false;
 
   // get tx, ty from the center x, center y
@@ -243,12 +245,23 @@ const simpleOrbit = (p) => {
   const dx = x - cx;
   const dy = y - cy;
 
-  const tx = cx + (cos * dx - sin * dy);
-  const ty = cy + (cos * dy + sin * dx);
+  // the further away, the faster it orbit around center
+  const angleInc = ((id / PARTICLE_LENGTH - 1) + 1 ) * .005 // .005 ~ 0.01;
+  const cos = Math.cos(angleInc);
+  const sin = Math.sin(angleInc);
+
+  const x1 = (cos * dx - sin * dy);
+  const y1 = (cos * dy + sin * dx);
+
+  const tx = cx + x1;
+  const ty = cy + y1;
+
+  p.state.x = tx;
+  p.state.y = ty;
 
   // easing
-  p.state.x += (tx - x) * .1;
-  p.state.y += (ty - y) * .1;
+  // p.state.x += (tx - x) * .1;
+  // p.state.y += (ty - y) * .1;
 
 }
 
