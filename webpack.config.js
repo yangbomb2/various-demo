@@ -19,7 +19,8 @@ const postImport = require('postcss-import');
 const autoprefixer = require('autoprefixer'); // https://github.com/postcss/autoprefixer
 
 // when app is served in subdomain
-const basename = '/demo/image-texture/';
+// const basename = '/demo/image-texture/';
+const basename = '/demo/canvas-particle';
 
 // config
 const config = {

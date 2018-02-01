@@ -30,9 +30,13 @@ const PARTICLE_RADIUS = 3;
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
 
+// animation frame
+let req;
 
 // ui
 let activeUIs = [];
+
+// TODO, fetch this
 let UI = [
   {
     name: 'behaviors',
@@ -244,9 +248,11 @@ const simpleOrbit = (p) => {
   // get distance x, y
   const dx = x - cx;
   const dy = y - cy;
+  const dist = Math.sqrt(dx * dx, dy * dy);
 
   // the further away, the faster it orbit around center
-  const angleInc = ((id / PARTICLE_LENGTH - 1) + 1 ) * .005 // .005 ~ 0.01;
+  const angleInc = ((dist / cx) + 1 ) * .005 // .005 ~ 0.01;
+  // const angleInc = ((id / PARTICLE_LENGTH - 1) + 1 ) * .005 // .005 ~ 0.01;
   const cos = Math.cos(angleInc);
   const sin = Math.sin(angleInc);
 
@@ -264,11 +270,6 @@ const simpleOrbit = (p) => {
   // p.state.y += (ty - y) * .1;
 
 }
-
-// animation frame
-let req;
-
-// cavnas related fn
 
 
 /**
