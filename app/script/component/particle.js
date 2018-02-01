@@ -20,6 +20,7 @@ class Particle {
 
     const { w, h, r, color } = this.props;
 
+    // TODO boundary should be a part of behaviors
     const newState = {...this.state};
     const { vx, vy, move } = newState;
 
@@ -74,22 +75,6 @@ class Particle {
 
     // fill
     this.ctx.fill();
-
-    // // sorta debounce
-    // if (collision) {
-    //
-    //   console.log('1');
-    //
-    //   clearTimeout(collidingResetTimer);
-    //   collidingResetTimer = setTimeout(() => {
-    //
-    //     this.state.collision = false;
-    //     console.log('reset');
-    //
-    //
-    //   }, 500);
-    //
-    // }
 
     return this;
 

@@ -11,24 +11,35 @@ import style from 'StyleRoot/component/canvas-particle.scss';
 import _ from 'lodash';
 import Particle from './particle';
 
-// refs
-const canvasContainer = document.getElementsByClassName('canvas-container')[0];
-const canvas = document.getElementsByTagName('canvas')[0];
-const ctx = canvas.getContext('2d');
-
 // set width & height
 const WIDTH = window.innerWidth;
 const HEIGHT = 500;
 
 // particle related
 const particles = [];
-const PARTICLE_LENGTH = 100; // 100
+const PARTICLE_LENGTH = 150; // 100
 const PARTICLE_BETWEEN_MIN_DIST = 100;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
-const PARTICLE_RADIUS = 5; // 3
+const PARTICLE_RADIUS = 2; // 3
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
+
+// refs
+const canvasContainer = document.getElementsByClassName('canvas-container')[0];
+const canvas = document.getElementsByTagName('canvas')[0];
+const ctx = canvas.getContext('2d');
+
+// mouse related
+let useMousePosition = false;
+let mousePos = {
+  x: 0,
+  y: 0,
+};
+let mousePressInterval;
+let mousePressElapsed = 0;
+let mousePressed = false;
+let mousePointer = document.getElementsByClassName('mouse-pointer')[0];
 
 // animation frame
 let req;
@@ -61,6 +72,12 @@ let UI = [
 
       {
         type: 'radio',
+        value: 'gravitation',
+        active: false,
+      },
+
+      {
+        type: 'radio',
         value: 'line-between',
         active: false,
       },
@@ -73,6 +90,7 @@ let UI = [
     ],
   },
 ];
+
 
 // factory fn
 const createUI = (uiGroup, i) => {
@@ -214,19 +232,19 @@ const sin = Math.sin(angleInc);
 const simpleRotation = (p) => {
 
   const { x, y, move, angle } = p.state;
-
   if (move) p.state.move = false;
 
   // center coord
-  const cx = window.innerWidth * .5;
-  const cy = HEIGHT * .5;
+  const cx = canvas.width * .5;
+  const cy = canvas.height * .5;
 
   // distance
   const dx = x - cx;
   const dy = y - cy;
 
   // radius
-  const r = HEIGHT * .45;
+  // const r = HEIGHT * .45;
+  const r = canvas.height * .45;
 
   // const angle = Math.sqrt(dx * dx, dy * dy);
   const newAngle = angle + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
@@ -237,8 +255,44 @@ const simpleRotation = (p) => {
   p.state.angle += .01;
 
   // easing
-  p.state.x += (tx - x) * .1;
-  p.state.y += (ty - y) * .1;
+  p.state.x += (tx - x) * .025;
+  p.state.y += (ty - y) * .025;
+
+}
+
+
+/**
+ * Gravitation towrad mouse position
+ * @param  {[type]} p [description]
+ */
+const gravitation = (p) => {
+
+  const { x, y, move, angle } = p.state;
+
+  p.state.move = !mousePressed;
+
+  if (mousePressed) {
+
+    const cx = mousePos.x;
+    const cy = mousePos.y;
+
+    const dx = x - cx;
+    const dy = y - cy;
+
+    // radius
+    const r = 100;
+    const newAngle = angle + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
+
+    // get tx, ty
+    const tx = cx + Math.cos(newAngle) * r;
+    const ty = cy + Math.sin(newAngle) * r;
+    p.state.angle += .01;
+
+    // easing
+    p.state.x += (tx - x) * .05;
+    p.state.y += (ty - y) * .05;
+
+  }
 
 }
 
@@ -258,8 +312,8 @@ const simpleOrbit = (p) => {
   // get tx, ty from the center x, center y
 
   // center x, y
-  const cx = window.innerWidth * .5;
-  const cy = HEIGHT * .5;
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
 
   // get distance x, y
   const dx = x - cx;
@@ -333,6 +387,10 @@ const CanvasParticle = {
 
     window.addEventListener('resize', _.debounce(this.resize.bind(this), 300), false);
 
+    canvas.addEventListener('mousedown', _.throttle(this.mouseHandler.bind(this), 150), false);
+    canvas.addEventListener('mouseup', _.throttle(this.mouseHandler.bind(this), 150), false);
+    canvas.addEventListener('mousemove', _.throttle(this.mouseHandler.bind(this), 150), false);
+
     setTimeout(() => {
 
       // dispatch resize
@@ -384,6 +442,38 @@ const CanvasParticle = {
 
   },
 
+  mouseHandler(e) {
+
+    switch(e.type) {
+
+    case 'mousemove':
+
+      const box = e.target.getBoundingClientRect();
+      mousePos.x = e.clientX;
+      mousePos.y = e.clientY - box.top;
+
+      break;
+
+    case 'mousedown':
+
+      mousePressed = true;
+      mousePressElapsed = window.performance.now();
+
+      break;
+
+    case 'mouseup':
+
+      mousePressed = false;
+      mousePressElapsed = window.performance.now() - mousePressElapsed;
+      // console.log('current press elapsed time: ', mousePressElapsed);
+
+      break;
+
+    }
+
+
+  },
+
   resize(e) {
 
     canvas.width = window.innerWidth;
@@ -404,6 +494,16 @@ const CanvasParticle = {
     // repaint
     repaint();
 
+    // mouse pointer
+    // let currentMouseX = (mousePointer.style.left, 10);
+    // let currentMouseY = (mousePointer.style.top, 10);
+    //
+    // currentMouseX += (mousePos.x - currentMouseX) * .1;
+    // currentMouseY += (mousePos.y - currentMouseY) * .1;
+    //
+    // mousePointer.style.left = `${currentMouseX}px`;
+    // mousePointer.style.top = `${currentMouseY}px`;
+
     // update
     for (let i = 0; i < PARTICLE_LENGTH; ++i) {
 
@@ -414,6 +514,9 @@ const CanvasParticle = {
 
       // simple rotation
       if (activeUIs.indexOf('simple-rotation') !== -1) simpleRotation(p);
+
+      // gravitation
+      if (activeUIs.indexOf('gravitation') !== -1) gravitation(p);
 
       // simple orbit
       if (activeUIs.indexOf('simple-orbit') !== -1) simpleOrbit(p);
