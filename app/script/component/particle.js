@@ -2,6 +2,8 @@
  * Simple Particle
  */
 
+let collidingResetTimer;
+
 class Particle {
 
   constructor(args) {
@@ -63,15 +65,31 @@ class Particle {
 
   draw() {
 
-    const { r, color } = this.props;
-    const { x, y, w, h } = this.state;
+    const { r, defaultColor, collideColor } = this.props;
+    const { x, y, w, h, collision } = this.state;
 
-    this.ctx.fillStyle = color;
+    this.ctx.fillStyle = collision ? collideColor : defaultColor;
     this.ctx.beginPath();
     this.ctx.arc(x, y, r, 0, Math.PI * 2, false);
 
     // fill
     this.ctx.fill();
+
+    // // sorta debounce
+    // if (collision) {
+    //
+    //   console.log('1');
+    //
+    //   clearTimeout(collidingResetTimer);
+    //   collidingResetTimer = setTimeout(() => {
+    //
+    //     this.state.collision = false;
+    //     console.log('reset');
+    //
+    //
+    //   }, 500);
+    //
+    // }
 
     return this;
 
@@ -80,7 +98,7 @@ class Particle {
   // default states
   getDefaultState() {
 
-    const { w, h } = this.props;
+    const { w, h, defaultColor } = this.props;
 
     // speed vec
     const min = 2;
@@ -98,6 +116,7 @@ class Particle {
       vx,
       vy,
       angle: 0, // in rad
+      collision: false, // boo. indicating if this particle colliding with others or walls
     };
 
   }

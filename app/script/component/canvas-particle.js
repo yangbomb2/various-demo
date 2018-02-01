@@ -1,5 +1,5 @@
 /*
-  Canvas Particle
+  Canvas Particle Index
 
   @author min yang
 */
@@ -10,7 +10,6 @@ import style from 'StyleRoot/component/canvas-particle.scss';
 // dependencies
 import _ from 'lodash';
 import Particle from './particle';
-
 
 // refs
 const canvasContainer = document.getElementsByClassName('canvas-container')[0];
@@ -23,10 +22,11 @@ const HEIGHT = 500;
 
 // particle related
 const particles = [];
-const PARTICLE_LENGTH = 100;
+const PARTICLE_LENGTH = 100; // 100
 const PARTICLE_BETWEEN_MIN_DIST = 100;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
-const PARTICLE_RADIUS = 3;
+const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
+const PARTICLE_RADIUS = 5; // 3
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
 
@@ -43,7 +43,7 @@ let UI = [
     children: [
       {
         type: 'radio',
-        value: 'collision',
+        value: 'simple-collision',
         active: false,
       },
       {
@@ -52,16 +52,19 @@ let UI = [
         active: false,
         disabled: true,
       },
-      {
-        type: 'radio',
-        value: 'line-between',
-        active: false,
-      },
+
       {
         type: 'radio',
         value: 'simple-rotation',
         active: false,
       },
+
+      {
+        type: 'radio',
+        value: 'line-between',
+        active: false,
+      },
+
       {
         type: 'radio',
         value: 'simple-orbit',
@@ -135,38 +138,50 @@ const lineInBetween = (p1, p2, minDist) => {
     ctx.stroke();
     ctx.closePath();
 
-    // Some acceleration for the partcles
-    // depending upon their distance
-    const ax = dx / 5000;
-    const ay = dy / 5000;
-
-    // p1.state.vx -= ax;
-    // p1.state.vy -= ay;
-
-    // p2.state.vx += ax;
-    // p2.state.vy += ay;
-
   }
 
 }
 
 // simple collision in between
-const collision = (p1, p2) => {
+const simpleCollision = (p1, p2) => {
 
   if (!p1.state.move) p1.state.move = true;
 
   const dx = p2.state.x - p1.state.x;
   const dy = p2.state.y - p1.state.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
+  const theta = Math.atan2(dy, dx);
+
   const minDist = PARTICLE_RADIUS * 2;
+  const isColliding = dist < minDist;
 
-  if (dist < minDist) {
+  if (isColliding) {
 
+    // set collision flag
     p1.state.vx *= -1;
     p1.state.vy *= -1;
 
+    // move p2 from p1 with minDist
+    p2.state.x = Math.cos(theta) * minDist + p1.state.x;
+    p2.state.y = Math.sin(theta) * minDist + p1.state.y;
+
     p2.state.vx *= -1;
     p2.state.vy *= -1;
+
+    // collision color
+    ((p1, p2) => {
+
+      p1.state.collision = isColliding;
+      p2.state.collision = isColliding;
+
+      setTimeout(() => {
+
+        p1.state.collision = false;
+        p2.state.collision = false;
+
+      }, 200);
+
+    })(p1, p2);
 
   }
 
@@ -189,6 +204,7 @@ const advCollision = (p1, p2) => {
   // p1.state.y = ty;
 
 }
+
 
 // simple rotation
 const angleInc = .05;
@@ -298,7 +314,8 @@ const CanvasParticle = {
         w: window.innerWidth,
         h: HEIGHT,
         r: PARTICLE_RADIUS,
-        color: PARTICLE_COLOR,
+        defaultColor : PARTICLE_COLOR,
+        collideColor : PARTICLE_COLLIDE_COLOR,
       });
 
       particles.push(particle);
@@ -394,15 +411,6 @@ const CanvasParticle = {
       p.draw().update();
 
       // behaviors
-      for (let j = i + 1; j < PARTICLE_LENGTH; ++j) {
-
-        // n-between collision detection & bounce
-        if (activeUIs.indexOf('collision') !== -1) collision(p, particles[j]);
-
-        // check in-between distance against neibors and draw line
-        if (activeUIs.indexOf('line-between') !== -1) lineInBetween(p, particles[j], PARTICLE_BETWEEN_MIN_DIST);
-
-      }
 
       // simple rotation
       if (activeUIs.indexOf('simple-rotation') !== -1) simpleRotation(p);
@@ -410,6 +418,16 @@ const CanvasParticle = {
       // simple orbit
       if (activeUIs.indexOf('simple-orbit') !== -1) simpleOrbit(p);
 
+      // these are in-between. nested loop required.
+      for (let j = i + 1; j < PARTICLE_LENGTH; ++j) {
+
+        // n-between collision detection & bounce
+        if (activeUIs.indexOf('simple-collision') !== -1) simpleCollision(p, particles[j]);
+
+        // check in-between distance against neibors and draw line
+        if (activeUIs.indexOf('line-between') !== -1) lineInBetween(p, particles[j], PARTICLE_BETWEEN_MIN_DIST);
+
+      }
 
     }
 
