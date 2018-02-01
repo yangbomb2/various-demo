@@ -9,9 +9,12 @@
 
 // Component block
 .canvas-container {
-	background: #333;
 	overflow: hidden;
+	background: #333;
 
 	canvas {}
+}
 
+.ui-container {
+	overflow: hidden;
 }
