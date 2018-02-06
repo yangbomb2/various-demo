@@ -496,6 +496,12 @@ const CanvasParticle = {
 
     console.log(`currentBehavior: ${currentBehavior}`);
 
+    if (currentBehavior === 'simple-orbit' || currentBehavior === 'push-and-pull') {
+
+      spreadParticleInRandomPosition();
+
+    }
+
   },
 
   mouseHandler(e) {

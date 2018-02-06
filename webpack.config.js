@@ -20,7 +20,7 @@ const autoprefixer = require('autoprefixer'); // https://github.com/postcss/auto
 
 // when app is served in subdomain
 // const basename = '/demo/image-texture/';
-const basename = '/demo/canvas-particle';
+const basename = '/demo/canvas-particle/';
 
 // config
 const config = {
