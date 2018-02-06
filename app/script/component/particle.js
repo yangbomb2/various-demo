@@ -22,14 +22,24 @@ class Particle {
 
     // TODO boundary should be a part of behaviors
     const newState = {...this.state};
-    const { vx, vy, move } = newState;
+    const { x, y, vx, vy, tx, ty, freeMove, moveWithTargetPosition } = newState;
 
-    // if self move is off, don't move
-    if (!move) return;
+    // if free is on, move freely & randomly
+    if (freeMove) {
 
-    // update x, y
-    newState.x += vx;
-    newState.y += vy;
+      // update x, y
+      newState.x += vx;
+      newState.y += vy;
+
+    }
+
+    // if true, move toward current tx, ty
+    if (moveWithTargetPosition) {
+
+      newState.x += (tx - x) * .065;
+      newState.y += (ty - y) * .065;
+
+    }
 
     // simple boundary check & bounce
     // boundary x
@@ -69,8 +79,9 @@ class Particle {
     const { r, defaultColor, collideColor } = this.props;
     const { x, y, w, h, collision } = this.state;
 
-    this.ctx.fillStyle = collision ? collideColor : defaultColor;
     this.ctx.beginPath();
+ 
+    this.ctx.fillStyle = collision ? collideColor : defaultColor;
     this.ctx.arc(x, y, r, 0, Math.PI * 2, false);
 
     // fill
@@ -97,11 +108,14 @@ class Particle {
       isOkToRenderContent: true,
       x: Math.random() * w,
       y: Math.random() * h,
-      move: true,
       vx,
       vy,
-      angle: 0, // in rad
+      tx: 0,
+      ty: 0,
+      rotation: 0, // in rad
       collision: false, // boo. indicating if this particle colliding with others or walls
+      freeMove: true,
+      moveWithTargetPosition: false, // if true, 
     };
 
   }

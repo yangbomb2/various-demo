@@ -1,6 +1,5 @@
 /*
   Canvas Particle Index
-
   @author min yang
 */
 
@@ -17,11 +16,12 @@ const HEIGHT = 500;
 
 // particle related
 const particles = [];
-const PARTICLE_LENGTH = 150; // 100
+const PARTICLE_LENGTH = 200; // 100
 const PARTICLE_BETWEEN_MIN_DIST = 100;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
 const PARTICLE_RADIUS = 2; // 3
+const MOUSE_CURSOR_RADIUS = 30;
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
 
@@ -46,8 +46,6 @@ let req;
 
 // ui
 let activeUIs = [];
-
-// TODO, fetch this
 let UI = [
   {
     name: 'behaviors',
@@ -73,7 +71,7 @@ let UI = [
       {
         type: 'radio',
         value: 'gravitation',
-        active: false,
+        active: true,
       },
 
       {
@@ -91,7 +89,6 @@ let UI = [
   },
 ];
 
-
 // factory fn
 const createUI = (uiGroup, i) => {
 
@@ -100,11 +97,11 @@ const createUI = (uiGroup, i) => {
 
   const childrenHTML = children.reduce((all, ui, j) => {
 
-    const { id, type, value, disabled } = ui;
+    const { id, type, value, disabled, active } = ui;
 
     const renderedUI = `
       <div class="form-check">
-        <input class="form-check-input" type="${type}" name="${name}" id="${name}-${j}" value="${value}" ${disabled ? 'disabled' : ''}>
+        <input class="form-check-input" type="${type}" name="${name}" id="${name}-${j}" value="${value}" ${disabled ? 'disabled' : ''} ${active ? 'checked' : ''}>
         <label class="form-check-label" for="${name}-${j}">
           ${value}
         </label>
@@ -133,7 +130,7 @@ const createUI = (uiGroup, i) => {
 // Distance calculator between two particles
 const lineInBetween = (p1, p2, minDist) => {
 
-  if (!p1.state.move) p1.state.move = true;
+  if (!p1.state.freeMove) p1.state.freeMove = true;
 
   const dx = p2.state.x - p1.state.x;
   const dy = p2.state.y - p1.state.y;
@@ -163,7 +160,9 @@ const lineInBetween = (p1, p2, minDist) => {
 // simple collision in between
 const simpleCollision = (p1, p2) => {
 
-  if (!p1.state.move) p1.state.move = true;
+  // with free move
+  p1.state.freeMove = true;
+  p1.state.moveWithTargetPosition = false;
 
   const dx = p2.state.x - p1.state.x;
   const dy = p2.state.y - p1.state.y;
@@ -208,7 +207,7 @@ const simpleCollision = (p1, p2) => {
 // TODO: adv collision in between
 const advCollision = (p1, p2) => {
 
-  if (!p1.state.move) p1.state.move = true;
+  if (!p1.state.freeMove) p1.state.freeMovemove = true;
 
   const dx = p2.state.x - p1.state.x;
   const dy = p2.state.y - p1.state.y;
@@ -225,14 +224,16 @@ const advCollision = (p1, p2) => {
 
 
 // simple rotation
-const angleInc = .05;
+const angleInc = .01;
 const cos = Math.cos(angleInc);
 const sin = Math.sin(angleInc);
 
 const simpleRotation = (p) => {
 
-  const { x, y, move, angle } = p.state;
-  if (move) p.state.move = false;
+  const { x, y, freeMove, rotation } = p.state;
+
+  p.state.freeMove = false;
+  p.state.moveWithTargetPosition = true;
 
   // center coord
   const cx = canvas.width * .5;
@@ -243,20 +244,22 @@ const simpleRotation = (p) => {
   const dy = y - cy;
 
   // radius
-  // const r = HEIGHT * .45;
   const r = canvas.height * .45;
 
   // const angle = Math.sqrt(dx * dx, dy * dy);
-  const newAngle = angle + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
+  const newAngle = rotation + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
 
   // get tx, ty
   const tx = cx + Math.cos(newAngle) * r;
   const ty = cy + Math.sin(newAngle) * r;
-  p.state.angle += .01;
+
+  p.state.tx = tx;
+  p.state.ty = ty;
+  p.state.rotation += .01;
 
   // easing
-  p.state.x += (tx - x) * .025;
-  p.state.y += (ty - y) * .025;
+  // p.state.x += (tx - x) * .025;
+  // p.state.y += (ty - y) * .025;
 
 }
 
@@ -267,9 +270,10 @@ const simpleRotation = (p) => {
  */
 const gravitation = (p) => {
 
-  const { x, y, move, angle } = p.state;
+  const { x, y, move, rotation } = p.state;
 
-  p.state.move = !mousePressed;
+  p.state.freeMove = !mousePressed;
+  p.state.moveWithTargetPosition = mousePressed;
 
   if (mousePressed) {
 
@@ -280,17 +284,15 @@ const gravitation = (p) => {
     const dy = y - cy;
 
     // radius
-    const r = 100;
-    const newAngle = angle + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
+    const r = MOUSE_CURSOR_RADIUS + Math.random() * 100;
+    const newAngle = rotation + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
 
     // get tx, ty
     const tx = cx + Math.cos(newAngle) * r;
     const ty = cy + Math.sin(newAngle) * r;
-    p.state.angle += .01;
 
-    // easing
-    p.state.x += (tx - x) * .05;
-    p.state.y += (ty - y) * .05;
+    p.state.tx = tx;
+    p.state.ty = ty;
 
   }
 
@@ -304,10 +306,10 @@ const gravitation = (p) => {
 const simpleOrbit = (p) => {
 
   const { id } = p.props;
-  const { x, y, move, angle } = p.state;
+  const { x, y, freeMove, angle } = p.state;
 
   // prevent self move
-  if (move) p.state.move = false;
+  if (freeMove) p.state.freeMove = false;
 
   // get tx, ty from the center x, center y
 
@@ -322,9 +324,10 @@ const simpleOrbit = (p) => {
 
   // the further away, the faster it orbit around center
   const angleInc = ((dist / cx) + 1 ) * .005 // .005 ~ 0.01;
+
   // const angleInc = ((id / PARTICLE_LENGTH - 1) + 1 ) * .005 // .005 ~ 0.01;
-  const cos = Math.cos(angleInc);
-  const sin = Math.sin(angleInc);
+  // const cos = Math.cos(angleInc);
+  // const sin = Math.sin(angleInc);
 
   const x1 = (cos * dx - sin * dy);
   const y1 = (cos * dy + sin * dx);
@@ -335,12 +338,7 @@ const simpleOrbit = (p) => {
   p.state.x = tx;
   p.state.y = ty;
 
-  // easing
-  // p.state.x += (tx - x) * .1;
-  // p.state.y += (ty - y) * .1;
-
 }
-
 
 /**
  * Repaint the context(reset)
@@ -352,6 +350,15 @@ const repaint = () => {
 
 }
 
+const drawMouseCursor = () => {
+
+  ctx.beginPath();
+  ctx.lineWidth = .5;
+  ctx.strokeStyle = '#111';
+  ctx.arc(mousePos.x, mousePos.y, MOUSE_CURSOR_RADIUS, 0, Math.PI * 2);
+  ctx.stroke();
+
+}
 /**
  * App
  */
@@ -381,6 +388,8 @@ const CanvasParticle = {
 
     let uiHTML = '';
     const ui = UI.forEach((uiGroup,i) => uiHTML += createUI(uiGroup, i));
+    // default active
+    this.setActiveUI();
 
     form.innerHTML = uiHTML;
     form.addEventListener('change', this.formChange.bind(this), false);
@@ -435,6 +444,12 @@ const CanvasParticle = {
 
     }
 
+    this.setActiveUI();
+
+  },
+
+  setActiveUI() {
+
     // find which ui is active
     activeUIs = UI
       .reduce((activeUIs, uiGroup) => activeUIs.concat(uiGroup.children.filter(ui => ui.active)), [])
@@ -465,7 +480,6 @@ const CanvasParticle = {
 
       mousePressed = false;
       mousePressElapsed = window.performance.now() - mousePressElapsed;
-      // console.log('current press elapsed time: ', mousePressElapsed);
 
       break;
 
@@ -495,14 +509,7 @@ const CanvasParticle = {
     repaint();
 
     // mouse pointer
-    // let currentMouseX = (mousePointer.style.left, 10);
-    // let currentMouseY = (mousePointer.style.top, 10);
-    //
-    // currentMouseX += (mousePos.x - currentMouseX) * .1;
-    // currentMouseY += (mousePos.y - currentMouseY) * .1;
-    //
-    // mousePointer.style.left = `${currentMouseX}px`;
-    // mousePointer.style.top = `${currentMouseY}px`;
+    // drawMouseCursor();
 
     // update
     for (let i = 0; i < PARTICLE_LENGTH; ++i) {
