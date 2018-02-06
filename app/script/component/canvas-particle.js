@@ -20,7 +20,7 @@ const PARTICLE_LENGTH = 200; // 100
 const PARTICLE_BETWEEN_MIN_DIST = 100;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
-const PARTICLE_RADIUS = 2; // 3
+const PARTICLE_RADIUS = 5; // 3
 const MOUSE_CURSOR_RADIUS = 30;
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
@@ -43,6 +43,7 @@ let mousePointer = document.getElementsByClassName('mouse-pointer')[0];
 
 // animation frame
 let req;
+let currentBehavior = '';
 
 // ui
 let activeUIs = [];
@@ -53,36 +54,38 @@ let UI = [
       {
         type: 'radio',
         value: 'simple-collision',
+        label: 'simple collision',
         active: false,
       },
       {
         type: 'radio',
         value: 'adv. collision',
+        label: 'advance collision',
         active: false,
         disabled: true,
       },
-
       {
         type: 'radio',
         value: 'simple-rotation',
+        label: 'simple rotation',
         active: false,
       },
-
       {
         type: 'radio',
-        value: 'gravitation',
-        active: true,
+        value: 'push-and-pull',
+        label: 'push and pull',
+        active: false,
       },
-
       {
         type: 'radio',
         value: 'line-between',
+        label: 'line inbetween',
         active: false,
       },
-
       {
         type: 'radio',
         value: 'simple-orbit',
+        label: 'orbit',
         active: false,
       },
     ],
@@ -97,13 +100,13 @@ const createUI = (uiGroup, i) => {
 
   const childrenHTML = children.reduce((all, ui, j) => {
 
-    const { id, type, value, disabled, active } = ui;
+    const { id, type, value, label, disabled, active } = ui;
 
     const renderedUI = `
       <div class="form-check">
         <input class="form-check-input" type="${type}" name="${name}" id="${name}-${j}" value="${value}" ${disabled ? 'disabled' : ''} ${active ? 'checked' : ''}>
         <label class="form-check-label" for="${name}-${j}">
-          ${value}
+          ${label}
         </label>
       </div>`;
 
@@ -123,7 +126,6 @@ const createUI = (uiGroup, i) => {
   return group;
 
 }
-
 
 // ====BEHAVIORS=====
 // check distance
@@ -265,34 +267,52 @@ const simpleRotation = (p) => {
 
 
 /**
- * Gravitation towrad mouse position
+ * push-and-pull towrad mouse position
  * @param  {[type]} p [description]
  */
-const gravitation = (p) => {
+const pushAndPull = (p) => {
 
   const { x, y, move, rotation } = p.state;
 
-  p.state.freeMove = !mousePressed;
-  p.state.moveWithTargetPosition = mousePressed;
+  p.state.freeMove = false;
+  p.state.moveWithTargetPosition = true;
+
+  let r;
+  let newRotation;
+  const cx = mousePos.x;
+  const cy = mousePos.y;
 
   if (mousePressed) {
 
-    const cx = mousePos.x;
-    const cy = mousePos.y;
-
-    const dx = x - cx;
-    const dy = y - cy;
-
     // radius
-    const r = MOUSE_CURSOR_RADIUS + Math.random() * 100;
-    const newAngle = rotation + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
+    const r = Math.random() * 200;
+    const newRotation = rotation + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
 
     // get tx, ty
-    const tx = cx + Math.cos(newAngle) * r;
-    const ty = cy + Math.sin(newAngle) * r;
+    const tx = cx + Math.cos(newRotation) * r;
+    const ty = cy + Math.sin(newRotation) * r;
 
     p.state.tx = tx;
     p.state.ty = ty;
+
+  } else {
+
+    const dx = x - cx;
+    const dy = y - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const minDist = MOUSE_CURSOR_RADIUS + p.props.r + 10;
+
+    if (dist < minDist) {
+
+      // similar to collision
+      const theta = Math.atan2(dy, dx);
+      const tx = cx + Math.cos(theta) * minDist;
+      const ty = cy + Math.sin(theta) * minDist;
+
+      p.state.tx = tx;
+      p.state.ty = ty;
+
+    }
 
   }
 
@@ -309,7 +329,8 @@ const simpleOrbit = (p) => {
   const { x, y, freeMove, angle } = p.state;
 
   // prevent self move
-  if (freeMove) p.state.freeMove = false;
+  p.state.freeMove = false;
+  p.state.moveWithTargetPosition = false;
 
   // get tx, ty from the center x, center y
 
@@ -323,8 +344,7 @@ const simpleOrbit = (p) => {
   const dist = Math.sqrt(dx * dx, dy * dy);
 
   // the further away, the faster it orbit around center
-  const angleInc = ((dist / cx) + 1 ) * .005 // .005 ~ 0.01;
-
+  const angleInc = ((dist / cx) + 1 ) * .05 // .005 ~ 0.01;
   // const angleInc = ((id / PARTICLE_LENGTH - 1) + 1 ) * .005 // .005 ~ 0.01;
   // const cos = Math.cos(angleInc);
   // const sin = Math.sin(angleInc);
@@ -337,6 +357,20 @@ const simpleOrbit = (p) => {
 
   p.state.x = tx;
   p.state.y = ty;
+
+}
+
+// position all particle in random coordinates
+const spreadParticleInRandomPosition = () => {
+
+  for (let i = 0; i < particles.length; ++i) {
+
+    const p = particles[i];
+
+    p.state.tx = Math.random() * canvas.width;
+    p.state.ty = Math.random() * canvas.height;
+
+  }
 
 }
 
@@ -388,25 +422,28 @@ const CanvasParticle = {
 
     let uiHTML = '';
     const ui = UI.forEach((uiGroup,i) => uiHTML += createUI(uiGroup, i));
-    // default active
-    this.setActiveUI();
 
     form.innerHTML = uiHTML;
     form.addEventListener('change', this.formChange.bind(this), false);
 
     window.addEventListener('resize', _.debounce(this.resize.bind(this), 300), false);
-
     canvas.addEventListener('mousedown', _.throttle(this.mouseHandler.bind(this), 150), false);
     canvas.addEventListener('mouseup', _.throttle(this.mouseHandler.bind(this), 150), false);
     canvas.addEventListener('mousemove', _.throttle(this.mouseHandler.bind(this), 150), false);
 
+    // dispatch resize
+    const re = new Event('resize');
+    window.dispatchEvent(re);
+
     setTimeout(() => {
 
-      // dispatch resize
-      const re = new Event('resize');
-      window.dispatchEvent(re);
-
       req = requestAnimationFrame(this.tick.bind(this));
+
+      // default active
+      this.setActiveUI();
+
+      // random position initially
+      spreadParticleInRandomPosition();
 
     }, 500);
 
@@ -455,6 +492,10 @@ const CanvasParticle = {
       .reduce((activeUIs, uiGroup) => activeUIs.concat(uiGroup.children.filter(ui => ui.active)), [])
       .map(ui => ui.value);
 
+    currentBehavior = activeUIs.pop();
+
+    console.log(`currentBehavior: ${currentBehavior}`);
+
   },
 
   mouseHandler(e) {
@@ -480,6 +521,12 @@ const CanvasParticle = {
 
       mousePressed = false;
       mousePressElapsed = window.performance.now() - mousePressElapsed;
+
+      if (currentBehavior === 'simple-orbit' || currentBehavior === 'push-and-pull') {
+
+        spreadParticleInRandomPosition();
+
+      }
 
       break;
 
@@ -515,29 +562,30 @@ const CanvasParticle = {
     for (let i = 0; i < PARTICLE_LENGTH; ++i) {
 
       const p = particles[i];
-      p.draw().update();
 
       // behaviors
 
       // simple rotation
-      if (activeUIs.indexOf('simple-rotation') !== -1) simpleRotation(p);
+      if (currentBehavior === 'simple-rotation') simpleRotation(p);
 
-      // gravitation
-      if (activeUIs.indexOf('gravitation') !== -1) gravitation(p);
+      // push-and-pull
+      if (currentBehavior === 'push-and-pull') pushAndPull(p);
 
       // simple orbit
-      if (activeUIs.indexOf('simple-orbit') !== -1) simpleOrbit(p);
+      if (currentBehavior === 'simple-orbit') simpleOrbit(p);
 
       // these are in-between. nested loop required.
       for (let j = i + 1; j < PARTICLE_LENGTH; ++j) {
 
         // n-between collision detection & bounce
-        if (activeUIs.indexOf('simple-collision') !== -1) simpleCollision(p, particles[j]);
+        if (currentBehavior === 'simple-collision') simpleCollision(p, particles[j]);
 
         // check in-between distance against neibors and draw line
-        if (activeUIs.indexOf('line-between') !== -1) lineInBetween(p, particles[j], PARTICLE_BETWEEN_MIN_DIST);
+        if (currentBehavior === 'line-between') lineInBetween(p, particles[j], PARTICLE_BETWEEN_MIN_DIST);
 
       }
+
+      p.draw().update();
 
     }
 

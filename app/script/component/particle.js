@@ -22,7 +22,7 @@ class Particle {
 
     // TODO boundary should be a part of behaviors
     const newState = {...this.state};
-    const { x, y, vx, vy, tx, ty, freeMove, moveWithTargetPosition } = newState;
+    const { x, y, vx, vy, tx, ty, freeMove, moveWithTargetPosition, boundaryCheck } = newState;
 
     // if free is on, move freely & randomly
     if (freeMove) {
@@ -31,40 +31,43 @@ class Particle {
       newState.x += vx;
       newState.y += vy;
 
-    }
+    }else if (moveWithTargetPosition) {
 
-    // if true, move toward current tx, ty
-    if (moveWithTargetPosition) {
-
+      // if true, move toward current tx, ty
       newState.x += (tx - x) * .065;
       newState.y += (ty - y) * .065;
 
     }
 
-    // simple boundary check & bounce
-    // boundary x
-    if (newState.x - r < 0) {
+    // boundary check
+    if (boundaryCheck) {
 
-      newState.x = r;
-      newState.vx *= -1;
+      // simple boundary check & bounce
+      // boundary x
+      if (newState.x - r < 0) {
 
-    } else if (newState.x + r > w) {
+        newState.x = r;
+        newState.vx *= -1;
 
-      newState.x = w - r;
-      newState.vx *= -1;
+      } else if (newState.x + r > w) {
 
-    }
+        newState.x = w - r;
+        newState.vx *= -1;
 
-    // boundary y
-    if (newState.y - r < 0) {
+      }
 
-      newState.y = r;
-      newState.vy *= -1;
+      // boundary y
+      if (newState.y - r < 0) {
 
-    } else if (newState.y + r > h) {
+        newState.y = r;
+        newState.vy *= -1;
 
-      newState.y = h - r;
-      newState.vy *= -1;
+      } else if (newState.y + r > h) {
+
+        newState.y = h - r;
+        newState.vy *= -1;
+
+      }
 
     }
 
@@ -80,7 +83,6 @@ class Particle {
     const { x, y, w, h, collision } = this.state;
 
     this.ctx.beginPath();
- 
     this.ctx.fillStyle = collision ? collideColor : defaultColor;
     this.ctx.arc(x, y, r, 0, Math.PI * 2, false);
 
@@ -113,6 +115,7 @@ class Particle {
       tx: 0,
       ty: 0,
       rotation: 0, // in rad
+      boundaryCheck: true,
       collision: false, // boo. indicating if this particle colliding with others or walls
       freeMove: true,
       moveWithTargetPosition: false, // if true, 
