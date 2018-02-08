@@ -12,7 +12,7 @@ import Particle from './particle';
 
 // set width & height
 const WIDTH = window.innerWidth;
-const HEIGHT = 500;
+const HEIGHT = 600;
 
 // particle related
 const particles = [];
@@ -20,7 +20,7 @@ const PARTICLE_LENGTH = 200; // 100
 const PARTICLE_BETWEEN_MIN_DIST = 100;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
-const PARTICLE_RADIUS = 5; // 3
+const PARTICLE_RADIUS = 2; // 3
 const MOUSE_CURSOR_RADIUS = 30;
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
@@ -186,6 +186,7 @@ const advCollision = (p1, p2) => {
 const angleInc = .01;
 const cos = Math.cos(angleInc);
 const sin = Math.sin(angleInc);
+const angleVec = Math.PI * 2 / PARTICLE_LENGTH;
 
 const simpleRotation = (p) => {
 
@@ -203,10 +204,8 @@ const simpleRotation = (p) => {
   const dy = y - cy;
 
   // radius
-  const r = canvas.height * .45;
-
-  // const angle = Math.sqrt(dx * dx, dy * dy);
-  const newAngle = rotation + Math.PI * 2 / PARTICLE_LENGTH * p.props.id;
+  const r = p.props.id * 1.25;
+  const newAngle = rotation + (angleVec * p.props.id * 5);
 
   // get tx, ty
   const tx = cx + Math.cos(newAngle) * r;
@@ -214,11 +213,7 @@ const simpleRotation = (p) => {
 
   p.state.tx = tx;
   p.state.ty = ty;
-  p.state.rotation += .01;
-
-  // easing
-  // p.state.x += (tx - x) * .025;
-  // p.state.y += (ty - y) * .025;
+  p.state.rotation -= mousePressed ? .05 : .01;
 
 }
 
@@ -387,7 +382,7 @@ const CanvasParticle = {
     canvas.addEventListener('mousemove', _.throttle(this.mouseHandler.bind(this), 150), false);
 
     // fetch json
-    fetch('/asset/json/canvas-particle.json')
+    fetch(`${window.location.href}/asset/json/canvas-particle.json`)
       .then(res => res.json())
       .then(ui => {
 

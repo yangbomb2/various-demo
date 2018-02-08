@@ -34,8 +34,8 @@ class Particle {
     }else if (moveWithTargetPosition) {
 
       // if true, move toward current tx, ty
-      newState.x += (tx - x) * .065;
-      newState.y += (ty - y) * .065;
+      newState.x += (tx - x) * .07;
+      newState.y += (ty - y) * .07;
 
     }
 
