@@ -47,50 +47,7 @@ let currentBehavior = '';
 
 // ui
 let activeUIs = [];
-let UI = [
-  {
-    name: 'behaviors',
-    children: [
-      {
-        type: 'radio',
-        value: 'simple-collision',
-        label: 'simple collision',
-        active: false,
-      },
-      {
-        type: 'radio',
-        value: 'adv. collision',
-        label: 'advance collision',
-        active: false,
-        disabled: true,
-      },
-      {
-        type: 'radio',
-        value: 'simple-rotation',
-        label: 'simple rotation',
-        active: false,
-      },
-      {
-        type: 'radio',
-        value: 'push-and-pull',
-        label: 'push and pull',
-        active: false,
-      },
-      {
-        type: 'radio',
-        value: 'line-between',
-        label: 'line inbetween',
-        active: false,
-      },
-      {
-        type: 'radio',
-        value: 'simple-orbit',
-        label: 'orbit',
-        active: false,
-      },
-    ],
-  },
-];
+let UI = [];
 
 // factory fn
 const createUI = (uiGroup, i) => {
@@ -400,6 +357,8 @@ const CanvasParticle = {
 
   init(data) {
 
+    if (Object.prototype.hasOwnProperty.call(data, 'el')) this.el = data.el;
+
     // create particles
     for (let i = 0; i < PARTICLE_LENGTH; ++i) {
 
@@ -418,12 +377,8 @@ const CanvasParticle = {
     }
 
     // Form & UI
-    const form = data.el.getElementsByTagName('form')[0];
+    const form = this.el.getElementsByTagName('form')[0];
 
-    let uiHTML = '';
-    const ui = UI.forEach((uiGroup,i) => uiHTML += createUI(uiGroup, i));
-
-    form.innerHTML = uiHTML;
     form.addEventListener('change', this.formChange.bind(this), false);
 
     window.addEventListener('resize', _.debounce(this.resize.bind(this), 300), false);
@@ -431,29 +386,41 @@ const CanvasParticle = {
     canvas.addEventListener('mouseup', _.throttle(this.mouseHandler.bind(this), 150), false);
     canvas.addEventListener('mousemove', _.throttle(this.mouseHandler.bind(this), 150), false);
 
-    // dispatch resize
-    const re = new Event('resize');
-    window.dispatchEvent(re);
+    // fetch json
+    fetch('/asset/json/canvas-particle.json')
+      .then(res => res.json())
+      .then(ui => {
 
-    setTimeout(() => {
+        UI.push(ui);
 
-      req = requestAnimationFrame(this.tick.bind(this));
+        let uiHTML = '';
+        UI.forEach((uiGroup, i) => uiHTML += createUI(uiGroup, i));
 
-      // default active
-      this.setActiveUI();
+        form.innerHTML = uiHTML;
 
-      // random position initially
-      spreadParticleInRandomPosition();
+        // default active
+        this.setActiveUI();
 
-    }, 500);
+        setTimeout(() => {
+
+          // dispatch resize
+          const re = new Event('resize');
+          window.dispatchEvent(re);
+
+          req = requestAnimationFrame(this.tick.bind(this));
+
+          // random position initially
+          spreadParticleInRandomPosition();
+
+        }, 500);
+
+      });
 
   },
 
   formChange(e) {
 
     const target = e.target;
-
-    // console.log(target.type, target.name, target.value, target.checked);
 
     const targetUIGroup = UI.filter(uiGroup => uiGroup.name === target.name).pop();
 
@@ -490,11 +457,16 @@ const CanvasParticle = {
     // find which ui is active
     activeUIs = UI
       .reduce((activeUIs, uiGroup) => activeUIs.concat(uiGroup.children.filter(ui => ui.active)), [])
-      .map(ui => ui.value);
+      .pop();
 
-    currentBehavior = activeUIs.pop();
 
-    console.log(`currentBehavior: ${currentBehavior}`);
+    // update alert
+    this.el.getElementsByClassName('alert')[0].innerHTML = activeUIs.description;
+
+    currentBehavior = activeUIs.value;
+
+    // console.log('activeUIs: ', activeUIs);
+    // console.log(`currentBehavior: ${currentBehavior}`);
 
     if (currentBehavior === 'simple-orbit' || currentBehavior === 'push-and-pull') {
 
