@@ -16,11 +16,11 @@ const HEIGHT = 600;
 
 // particle related
 const particles = [];
-const PARTICLE_LENGTH = 200; // 100
+const PARTICLE_LENGTH = 200;
 const PARTICLE_BETWEEN_MIN_DIST = 100;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
-const PARTICLE_RADIUS = 2; // 3
+const PARTICLE_RADIUS = 4; // 3
 const MOUSE_CURSOR_RADIUS = 30;
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
@@ -89,7 +89,7 @@ const createUI = (uiGroup, i) => {
 // Distance calculator between two particles
 const lineInBetween = (p1, p2, minDist) => {
 
-  if (!p1.state.freeMove) p1.state.freeMove = true;
+  p1.state.freeMove = true;
 
   const dx = p2.state.x - p1.state.x;
   const dy = p2.state.y - p1.state.y;
@@ -98,18 +98,20 @@ const lineInBetween = (p1, p2, minDist) => {
 
   // Draw the line when distance is smaller
   // then the minimum distance
-  if (dist <= minDist) {
+  if (dist < minDist) {
 
-    const proxmity = dist/minDist; // 0 ~ 1
+    const proxmity = dist / minDist; // 0 ~ 1
 
     // Draw the line
     ctx.beginPath();
+
     ctx.strokeStyle = `rgba(1,1,1, ${1 - proxmity})`;
     ctx.lineWidth = (proxmity * .5) + .5; // 0.5 ~ 1
 
     ctx.moveTo(p1.state.x, p1.state.y);
     ctx.lineTo(p2.state.x, p2.state.y);
     ctx.stroke();
+
     ctx.closePath();
 
   }
@@ -384,13 +386,21 @@ const CanvasParticle = {
     // fetch json
     fetch(`${window.location.href}/asset/json/canvas-particle.json`)
       .then(res => res.json())
-      .then(ui => {
+      .then(json => {
 
-        UI.push(ui);
+        // INFO
+        const infoHTML = `
+          <h1>${json.info.title}</h1>
+          <p>${json.info.subTitle}</p>
+          <p>code: <a href="${json.info.link.href}" target="${json.info.link.linkTarget}">${json.info.link.linkLabel}</a></p>
+        `.trim();
+        this.el.getElementsByClassName('info')[0].innerHTML = infoHTML;
+
+        // UI
+        UI.push(json.ui);
 
         let uiHTML = '';
         UI.forEach((uiGroup, i) => uiHTML += createUI(uiGroup, i));
-
         form.innerHTML = uiHTML;
 
         // default active
@@ -463,7 +473,9 @@ const CanvasParticle = {
     // console.log('activeUIs: ', activeUIs);
     // console.log(`currentBehavior: ${currentBehavior}`);
 
-    if (currentBehavior === 'simple-orbit' || currentBehavior === 'push-and-pull') {
+    if (currentBehavior === 'simple-orbit' ||
+        currentBehavior === 'push-and-pull' ||
+        currentBehavior === 'line-between') {
 
       spreadParticleInRandomPosition();
 

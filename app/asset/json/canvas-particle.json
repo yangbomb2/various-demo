@@ -1,48 +1,60 @@
 {
-    "name": "behaviors",
-    "children": [
-        {
-            "type": "radio",
-            "value": "simple-collision",
-            "label": "simple collision",
-            "active": true,
-            "description": "Basic collision test."
-        },
-        {
-            "type": "radio",
-            "value": "adv. collision",
-            "label": "advance collision",
-            "active": false,
-            "disabled": true,
-            "description": "todo"
-        },
-        {
-            "type": "radio",
-            "value": "simple-rotation",
-            "label": "simple rotation",
-            "active": false,
-            "description": "Particles rotate around the center of the canvas."
-        },
-        {
-            "type": "radio",
-            "value": "push-and-pull",
-            "label": "push and pull",
-            "active": false,
-            "description": "When mouse pressed, it pulls particles around mouse pointer. If not, push particles with min radius."
-        },
-        {
-            "type": "radio",
-            "value": "line-between",
-            "label": "line inbetween",
-            "active": false,
-            "description": "In a close proximity, draw lines between close neighbors."
-        },
-        {
-            "type": "radio",
-            "value": "simple-orbit",
-            "label": "orbit",
-            "active": false,
-            "description": "Particles orbiting around center of the canvas."
+    "info": {
+        "title": "Canvas particle",
+        "subTitle": "Simple canvas experiment with some basic physics.",
+        "link" : {
+            "href":"https://bitbucket.org/yangbomb2/various-demos/branch/canvas-particle",
+            "linkLabel": "Code in the repo",
+            "linkTarget": "_blank"
         }
-    ]
+    },
+
+    "ui" : {
+        "name": "behaviors",
+        "children": [
+            {
+                "type": "radio",
+                "value": "simple-collision",
+                "label": "simple collision",
+                "active": true,
+                "description": "Basic collision test."
+            },
+            {
+                "type": "radio",
+                "value": "adv. collision",
+                "label": "advance collision",
+                "active": false,
+                "disabled": true,
+                "description": "todo"
+            },
+            {
+                "type": "radio",
+                "value": "simple-rotation",
+                "label": "simple rotation",
+                "active": false,
+                "description": "Particles rotate around the center of the canvas."
+            },
+            {
+                "type": "radio",
+                "value": "push-and-pull",
+                "label": "push and pull",
+                "active": false,
+                "description": "When mouse pressed, it pulls particles around mouse pointer. If not, push particles with min radius."
+            },
+            {
+                "type": "radio",
+                "value": "line-between",
+                "label": "line inbetween",
+                "active": false,
+                "description": "In a close proximity, draw lines between close neighbors."
+            },
+            {
+                "type": "radio",
+                "value": "simple-orbit",
+                "label": "orbit",
+                "active": false,
+                "description": "Particles orbiting around center of the canvas."
+            }
+        ]
+    }
 }

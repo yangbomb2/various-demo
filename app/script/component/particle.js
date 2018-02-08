@@ -83,11 +83,24 @@ class Particle {
     const { x, y, w, h, collision } = this.state;
 
     this.ctx.beginPath();
+
     this.ctx.fillStyle = collision ? collideColor : defaultColor;
     this.ctx.arc(x, y, r, 0, Math.PI * 2, false);
 
     // fill
     this.ctx.fill();
+
+    // draw bounding box
+    if (collision) {
+
+      this.ctx.strokeStyle = collideColor;
+      this.ctx.lineWidth = .5;
+      this.ctx.strokeRect(x - r, y - r, r * 2, r * 2);
+
+    }
+
+    this.ctx.closePath();
+
 
     return this;
 
