@@ -12,9 +12,6 @@
 * [`ESLint`](http://eslint.org/). run npm i -g eslint if not globally installed.
 * [`NodeJS >=7.x.x`](https://nodejs.org)
 * [`NPM >= 4.0.x`](https://www.npmjs.com/)
-* [`Python ~2.7.x`](https://www.python.org/) - Used by `node-gyp` for certain packages
-* gulp ~3.9.x - Install globally with `npm install -g gulp`
-* For installed package details, versions, etc., see package.json ({project root}/package.json) or run command `npm list`.
 
 ## Installation guide
 Go to the project root
