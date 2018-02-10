@@ -1,11 +1,11 @@
 {
-  "name": "various-demos",
-  "version": "2.0.0",
-  "description": "variouse demos",
+  "name": "various-demo",
+  "version": "2.1.0",
+  "description": "various demo",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git@bitbucket.org:yangbomb2/various-demos.git"
+    "url": "git@github.com:yangbomb2/various-demo.git"
   },
   "scripts": {
     "test": "jest",
