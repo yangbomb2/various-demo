@@ -3,8 +3,8 @@
         "title": "Canvas particle",
         "subTitle": "Simple canvas experiment with some basic physics.",
         "link" : {
-            "href":"https://bitbucket.org/yangbomb2/various-demos/branch/canvas-particle",
-            "linkLabel": "Code in the repo",
+            "href":"https://github.com/yangbomb2/various-demo/tree/canvas-particle",
+            "linkLabel": "Code in the github",
             "linkTarget": "_blank"
         }
     },

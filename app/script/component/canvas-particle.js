@@ -392,7 +392,7 @@ const CanvasParticle = {
         const infoHTML = `
           <h1>${json.info.title}</h1>
           <p>${json.info.subTitle}</p>
-          <p>code: <a href="${json.info.link.href}" target="${json.info.link.linkTarget}">${json.info.link.linkLabel}</a></p>
+          <p><a href="${json.info.link.href}" target="${json.info.link.linkTarget}">${json.info.link.linkLabel}</a></p>
         `.trim();
         this.el.getElementsByClassName('info')[0].innerHTML = infoHTML;
 
