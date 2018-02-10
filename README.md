@@ -1,22 +1,21 @@
-# Project title
+# Various javascript demos
 
-Various demos
+## Description
+* Repository for various javascript mini projects that uses canvas, webgl, etc
+* developer: Min yang([`yangbomb2@gmail.com`](yangbomb2@gmail.com))
 
-- image + text
-
-* developer: Min yang(yangbomb2@gmail.com)
-
-## Additional information:
-* Using boilerplate Webpack 3
-
-## Code features
+## Branches:
+1. `canvas-particle`: [`Live demo`](hi-kyungminyang.com/demo/canvas-particle)
+2. `image + text`: [`Live demo`](http://hi-kyungminyang.com/demo/image-texture/)
 
 ## Dependencies
-
+* [`ESLint`](http://eslint.org/). run npm i -g eslint if not globally installed.
 * [`NodeJS >=7.x.x`](https://nodejs.org)
-
-### Optional
+* [`NPM >= 4.0.x`](https://www.npmjs.com/)
+* [`Python ~2.7.x`](https://www.python.org/) - Used by `node-gyp` for certain packages
+* gulp ~3.9.x - Install globally with `npm install -g gulp`
+* For installed package details, versions, etc., see package.json ({project root}/package.json) or run command `npm list`.
 
 ## Installation guide
-
-### Optional
+Go to the project root
+run npm install or npm i
