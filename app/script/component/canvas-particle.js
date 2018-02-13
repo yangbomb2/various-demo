@@ -8,6 +8,7 @@ import style from 'StyleRoot/component/canvas-particle.scss';
 
 // dependencies
 import _ from 'lodash';
+import Hammer from 'hammerjs';
 import Particle from './particle';
 
 // set width & height
@@ -17,10 +18,10 @@ let HEIGHT = window.innerHeight;
 // particle related
 const particles = [];
 const PARTICLE_LENGTH = 250;
-const PARTICLE_BETWEEN_MIN_DIST = 100;
+const PARTICLE_BETWEEN_MIN_DIST = 75;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
-const PARTICLE_RADIUS = 3; // 3
+const PARTICLE_RADIUS = 2; // 3
 const MOUSE_CURSOR_RADIUS = 30;
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
@@ -44,7 +45,7 @@ let mousePointer = document.getElementsByClassName('mouse-pointer')[0];
 // animation frame
 let req;
 let currentBehavior = '';
-
+let isOkToApplyBehavior = false;
 // ui
 let activeUIs = [];
 let UI = [];
@@ -315,14 +316,25 @@ const simpleOrbit = (p) => {
 // position all particle in random coordinates
 const spreadParticleInRandomPosition = () => {
 
+  isOkToApplyBehavior = false;
+
   for (let i = 0; i < particles.length; ++i) {
 
     const p = particles[i];
+
+    p.state.freeMove = false;
+    p.state.moveWithTargetPosition = true;
 
     p.state.tx = Math.random() * canvas.width;
     p.state.ty = Math.random() * canvas.height;
 
   }
+
+  setTimeout(() => {
+
+    isOkToApplyBehavior = true;
+
+  }, 500);
 
 }
 
@@ -381,6 +393,11 @@ const CanvasParticle = {
     canvas.addEventListener('mouseup', _.throttle(this.mouseHandler.bind(this), 150), false);
     canvas.addEventListener('mousemove', _.throttle(this.mouseHandler.bind(this), 150), false);
 
+    // Hammer
+    this.hammer = new Hammer.Manager(this.el);
+    this.hammer.add(new Hammer.Press());
+    this.hammer.on('press pressup', this.mouseHandler.bind(this));
+
     // fetch json
     fetch(`${window.location.href}/asset/json/canvas-particle.json`)
       .then(res => res.json())
@@ -411,9 +428,6 @@ const CanvasParticle = {
           window.dispatchEvent(re);
 
           req = requestAnimationFrame(this.tick.bind(this));
-
-          // random position initially
-          spreadParticleInRandomPosition();
 
         }, 500);
 
@@ -472,6 +486,7 @@ const CanvasParticle = {
     // console.log(`currentBehavior: ${currentBehavior}`);
 
     if (currentBehavior === 'simple-orbit' ||
+        currentBehavior === 'simple-collision' ||
         currentBehavior === 'push-and-pull' ||
         currentBehavior === 'line-between') {
 
@@ -494,6 +509,7 @@ const CanvasParticle = {
       break;
 
     case 'mousedown':
+    case 'press':
 
       mousePressed = true;
       mousePressElapsed = window.performance.now();
@@ -501,6 +517,7 @@ const CanvasParticle = {
       break;
 
     case 'mouseup':
+    case 'pressup':
 
       mousePressed = false;
       mousePressElapsed = window.performance.now() - mousePressElapsed;
@@ -555,15 +572,15 @@ const CanvasParticle = {
     // repaint
     repaint();
 
-    // mouse pointer
-    // drawMouseCursor();
-
     // update
     for (let i = 0; i < PARTICLE_LENGTH; ++i) {
 
       const p = particles[i];
 
+      p.draw().update();
+
       // behaviors
+      if (!isOkToApplyBehavior) continue;
 
       // simple rotation
       if (currentBehavior === 'simple-rotation') simpleRotation(p);
@@ -585,7 +602,6 @@ const CanvasParticle = {
 
       }
 
-      p.draw().update();
 
     }
 
