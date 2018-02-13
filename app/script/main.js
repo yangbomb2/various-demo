@@ -39,7 +39,7 @@ const rootEl = document.getElementById('app-root');
 const data = rootEl.dataset;
 
 const APP_DATA = Object.assign({
-  el: rootEl,
+	el: rootEl,
 }, data);
 
 // (function(appData){
@@ -50,17 +50,17 @@ const APP_DATA = Object.assign({
 
 window.addEventListener('DOMContentLoaded', (e) => {
 
-  // console.log(APP_DATA);
-  // image + text
-  // imageText.init(APP_DATA);
-  // canvas particle
-  cavnasParticle.init(APP_DATA);
+	// console.log(APP_DATA);
+	// image + text
+	// imageText.init(APP_DATA);
+	// canvas particle
+	cavnasParticle.init(APP_DATA);
 
 });
 
 // Webpack Hot Module Replacement API
 if (module.hot) {
 
-  // module.hot.accept('./component/canvas-particle');
+	// module.hot.accept('./component/canvas-particle');
 
 }

@@ -43,8 +43,9 @@
     ],
     "indent": [
       "error",
-      2
+      "tab"
     ],
+    "no-tabs": 0,
     "max-len": 0,
     "padded-blocks": [
       "error",

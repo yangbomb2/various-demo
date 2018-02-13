@@ -16,7 +16,7 @@
                 "type": "radio",
                 "value": "simple-collision",
                 "label": "simple collision",
-                "active": true,
+                "active": false,
                 "description": "Basic collision test."
             },
             {
@@ -31,7 +31,7 @@
                 "type": "radio",
                 "value": "simple-rotation",
                 "label": "simple rotation",
-                "active": false,
+                "active": true,
                 "description": "Particles rotate around the center of the canvas."
             },
             {
@@ -54,6 +54,13 @@
                 "label": "orbit",
                 "active": false,
                 "description": "Particles orbiting around center of the canvas."
+            },
+            {
+                "type": "radio",
+                "value": "spring",
+                "label": "spring",
+                "active": false,
+                "description": "TODO."
             }
         ]
     }
