@@ -11,16 +11,16 @@ import _ from 'lodash';
 import Particle from './particle';
 
 // set width & height
-const WIDTH = window.innerWidth;
-const HEIGHT = 600;
+let WIDTH = window.innerWidth;
+let HEIGHT = window.innerHeight;
 
 // particle related
 const particles = [];
-const PARTICLE_LENGTH = 200;
+const PARTICLE_LENGTH = 250;
 const PARTICLE_BETWEEN_MIN_DIST = 100;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
-const PARTICLE_RADIUS = 4; // 3
+const PARTICLE_RADIUS = 3; // 3
 const MOUSE_CURSOR_RADIUS = 30;
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
@@ -90,6 +90,7 @@ const createUI = (uiGroup, i) => {
 const lineInBetween = (p1, p2, minDist) => {
 
   p1.state.freeMove = true;
+  p1.state.moveWithTargetPosition = false;
 
   const dx = p2.state.x - p1.state.x;
   const dy = p2.state.y - p1.state.y;
@@ -178,11 +179,8 @@ const advCollision = (p1, p2) => {
   const angle = Math.atan2(dy, dx);
   const tx = p1.state.x + Math.cos(angle) + minDist;
   const ty = p1.state.y + Math.sin(angle) + minDist;
-  // p1.state.x = tx;
-  // p1.state.y = ty;
 
 }
-
 
 // simple rotation
 const angleInc = .01;
@@ -362,7 +360,7 @@ const CanvasParticle = {
       const particle = new Particle({
         id: i,
         ctx: ctx,
-        w: window.innerWidth,
+        w: WIDTH,
         h: HEIGHT,
         r: PARTICLE_RADIUS,
         defaultColor : PARTICLE_COLOR,
@@ -490,7 +488,7 @@ const CanvasParticle = {
     case 'mousemove':
 
       const box = e.target.getBoundingClientRect();
-      mousePos.x = e.clientX;
+      mousePos.x = e.clientX - box.left;
       mousePos.y = e.clientY - box.top;
 
       break;
@@ -522,13 +520,30 @@ const CanvasParticle = {
 
   resize(e) {
 
-    canvas.width = window.innerWidth;
+    // over 768
+    const isLargeScreen = window.matchMedia('screen and (min-width: 768px)').matches;
+
+    if (!isLargeScreen) {
+
+      WIDTH = window.innerWidth;
+      HEIGHT = 500;
+
+    } else {
+
+      const uiContainer = document.getElementsByClassName('ui-container')[0];
+
+      // update
+      WIDTH = window.innerWidth - uiContainer.offsetWidth;
+      HEIGHT = window.innerHeight;
+
+    }
+
+    canvas.width = WIDTH;
     canvas.height = HEIGHT;
 
-    // update
     for (let i = 0; i < PARTICLE_LENGTH; ++i) {
 
-      particles[i].props.w = window.innerWidth;
+      particles[i].props.w = WIDTH;
       particles[i].props.h = HEIGHT;
 
     }
