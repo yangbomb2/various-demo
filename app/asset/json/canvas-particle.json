@@ -16,8 +16,12 @@
                 "type": "radio",
                 "value": "simple-collision",
                 "label": "simple collision",
-                "active": false,
-                "description": "Basic collision test."
+                "active": true,
+				"description": "Basic collision test.",
+				"particle" : {
+					"length": 100,
+					"radius": 15
+				}
             },
             {
                 "type": "radio",
@@ -25,42 +29,66 @@
                 "label": "advance collision",
                 "active": false,
                 "disabled": true,
-                "description": "todo"
+				"description": "todo",
+				"particle": {
+					"length": 100,
+					"radius": 3
+				}
             },
             {
                 "type": "radio",
                 "value": "simple-rotation",
                 "label": "simple rotation",
-                "active": true,
-                "description": "Particles rotate around the center of the canvas."
+                "active": false,
+				"description": "Particles rotate around the center of the canvas.",
+				"particle": {
+					"length": 250,
+					"radius": 2
+				}
             },
             {
                 "type": "radio",
                 "value": "push-and-pull",
                 "label": "push and pull",
                 "active": false,
-                "description": "When mouse pressed, it pulls particles around mouse pointer. If not, push particles with min radius."
+				"description": "When mouse pressed, it pulls particles around mouse pointer. If not, push particles with min radius.",
+				"particle": {
+					"length": 600,
+					"radius": 3
+				}
             },
             {
                 "type": "radio",
                 "value": "line-between",
                 "label": "line inbetween",
                 "active": false,
-                "description": "In a close proximity, draw lines between close neighbors."
+				"description": "In a close proximity, draw lines between close neighbors.",
+				"particle": {
+					"length": 300,
+					"radius": 1
+				}
             },
             {
                 "type": "radio",
                 "value": "simple-orbit",
                 "label": "orbit",
                 "active": false,
-                "description": "Particles orbiting around center of the canvas."
+				"description": "Particles orbiting around center of the canvas.",
+				"particle": {
+					"length": 100,
+					"radius": 5
+				}
             },
             {
                 "type": "radio",
                 "value": "spring",
                 "label": "spring",
                 "active": false,
-                "description": "TODO."
+				"description": "TODO.",
+				"particle": {
+					"length": 20,
+					"radius": 30
+				}
             }
         ]
     }

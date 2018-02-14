@@ -20,14 +20,14 @@ class Particle {
 
 		// TODO boundary should be a part of behaviors
 		const newState = { ...this.state };
-		const { x, y, vx, vy, tx, ty, freeMove, moveWithTargetPosition, boundaryCheck } = newState;
+		const { x, y, vx, vy, staticVX, staticVY, tx, ty, freeMove, moveWithTargetPosition, boundaryCheck } = newState;
 
 		// if free is on, move freely & randomly
 		if (freeMove) {
 
 			// update x, y
-			newState.x += vx;
-			newState.y += vy;
+			newState.x += staticVX;
+			newState.y += staticVY;
 
 		} else if (moveWithTargetPosition) {
 
@@ -45,12 +45,12 @@ class Particle {
 			if (newState.x - r < 0) {
 
 				newState.x = r;
-				newState.vx *= -1;
+				newState.staticVX *= -1;
 
 			} else if (newState.x + r > w) {
 
 				newState.x = w - r;
-				newState.vx *= -1;
+				newState.staticVX *= -1;
 
 			}
 
@@ -58,12 +58,12 @@ class Particle {
 			if (newState.y - r < 0) {
 
 				newState.y = r;
-				newState.vy *= -1;
+				newState.staticVY *= -1;
 
 			} else if (newState.y + r > h) {
 
 				newState.y = h - r;
-				newState.vy *= -1;
+				newState.staticVY *= -1;
 
 			}
 
@@ -81,11 +81,8 @@ class Particle {
 		const { x, y, w, h, collision } = this.state;
 
 		this.ctx.beginPath();
-
 		this.ctx.fillStyle = collision ? collideColor : defaultColor;
 		this.ctx.arc(x, y, r, 0, Math.PI * 2, false);
-
-		// fill
 		this.ctx.fill();
 
 		// draw bounding box
@@ -108,11 +105,10 @@ class Particle {
 
 		const { w, h, defaultColor } = this.props;
 
-		// speed vec
+		// staic speed vec
 		const min = 2;
 		const max = 6;
 		const vec = Math.floor(Math.random() * (max - min + 1)) + min;
-
 		const vx = (Math.random() - .5) * vec; // -1 ~ 1
 		const vy = (Math.random() - .5) * vec; // -1 ~ 1
 
@@ -120,10 +116,12 @@ class Particle {
 			isOkToRenderContent: true,
 			x: Math.random() * w,
 			y: Math.random() * h,
-			vx,
-			vy,
+			vx: 0,
+			vy: 0,
 			tx: 0,
 			ty: 0,
+			staticVX: vx,
+			staticVY: vy,
 			rotation: 0, // in rad
 			boundaryCheck: true,
 			collision: false, // boo. indicating if this particle colliding with others or walls

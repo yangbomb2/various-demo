@@ -15,12 +15,9 @@ import Particle from './particle';
 import { spring, simpleCollision, simpleRotation, pushPull, simpleOrbit, lineBetween } from '../behavior';
 
 // particle related
-const particles = [];
-const PARTICLE_LENGTH = 250;
-const PARTICLE_BETWEEN_MIN_DIST = 75;
+const PARTICLE_BETWEEN_MIN_DIST = 80;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
-const PARTICLE_RADIUS = 2; // 3
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
 
@@ -30,8 +27,11 @@ const canvas = document.getElementsByTagName('canvas')[0];
 const ctx = canvas.getContext('2d');
 
 // set width & height
+let PARTICLE_LENGTH = 100; // 250
+let PARTICLE_RADIUS = 2; // 3
 let WIDTH = window.innerWidth;
 let HEIGHT = window.innerHeight;
+let particles = [];
 
 // mouse related
 let useMousePosition = false;
@@ -87,22 +87,6 @@ const createUI = (uiGroup, i) => {
 
 }
 
-// TODO: adv collision in between
-const advCollision = (p1, p2) => {
-
-	if (!p1.state.freeMove) p1.state.freeMovemove = true;
-
-	const dx = p2.state.x - p1.state.x;
-	const dy = p2.state.y - p1.state.y;
-	const dist = Math.sqrt(dx * dx + dy * dy);
-	const minDist = PARTICLE_RADIUS * 2;
-
-	const angle = Math.atan2(dy, dx);
-	const tx = p1.state.x + Math.cos(angle) + minDist;
-	const ty = p1.state.y + Math.sin(angle) + minDist;
-
-}
-
 // position all particle in random coordinates
 const spreadParticleInRandomPosition = () => {
 
@@ -129,6 +113,37 @@ const spreadParticleInRandomPosition = () => {
 }
 
 /**
+ *  Create Particles
+ */
+const createParticle = () => {
+
+	const { length, radius } = activeUIs.particle;
+
+	// reset
+	PARTICLE_LENGTH = length;
+	PARTICLE_RADIUS = radius;
+	particles = [];
+
+	// create particles
+	for (let i = 0; i < PARTICLE_LENGTH; ++i) {
+
+		const particle = new Particle({
+			id: i,
+			ctx: ctx,
+			w: WIDTH,
+			h: HEIGHT,
+			r: PARTICLE_RADIUS,
+			defaultColor: PARTICLE_COLOR,
+			collideColor: PARTICLE_COLLIDE_COLOR,
+		});
+
+		particles.push(particle);
+
+	}
+
+}
+
+/**
  * Repaint the context(reset)
  */
 const repaint = () => {
@@ -146,23 +161,6 @@ const CanvasParticle = {
 	init(data) {
 
 		if (Object.prototype.hasOwnProperty.call(data, 'el')) this.el = data.el;
-
-		// create particles
-		for (let i = 0; i < PARTICLE_LENGTH; ++i) {
-
-			const particle = new Particle({
-				id: i,
-				ctx: ctx,
-				w: WIDTH,
-				h: HEIGHT,
-				r: PARTICLE_RADIUS,
-				defaultColor: PARTICLE_COLOR,
-				collideColor: PARTICLE_COLLIDE_COLOR,
-			});
-
-			particles.push(particle);
-
-		}
 
 		// Form & UI
 		const form = this.el.getElementsByTagName('form')[0];
@@ -186,10 +184,11 @@ const CanvasParticle = {
 
 				// INFO
 				const infoHTML = `
-          <h1>${json.info.title}</h1>
-          <p>${json.info.subTitle}</p>
-          <p><a href="${json.info.link.href}" target="${json.info.link.linkTarget}">${json.info.link.linkLabel}</a></p>
-        `.trim();
+					<h1>${json.info.title}</h1>
+					<p>${json.info.subTitle}</p>
+					<p><a href="${json.info.link.href}" target="${json.info.link.linkTarget}">${json.info.link.linkLabel}</a></p>
+					`.trim();
+
 				this.el.getElementsByClassName('info')[0].innerHTML = infoHTML;
 
 				// UI
@@ -253,7 +252,7 @@ const CanvasParticle = {
 	setActiveUI() {
 
 		// TODO findout why
-		ctx.globalAlpha = .5;
+		// ctx.globalAlpha = .25;
 
 		// find which ui is active
 		activeUIs = UI
@@ -266,16 +265,12 @@ const CanvasParticle = {
 
 		currentBehavior = activeUIs.value;
 
-		// console.log('activeUIs: ', activeUIs);
+		console.log('activeUIs: ', activeUIs);
 		console.log(`currentBehavior: ${currentBehavior}`);
 
+		// creat particle
+		createParticle();
 		spreadParticleInRandomPosition();
-
-		// if (currentBehavior === 'simple-orbit' ||
-		//     currentBehavior === 'simple-collision' ||
-		//     currentBehavior === 'push-and-pull' ||
-		//     currentBehavior === 'line-between') {
-		// }
 
 	},
 
@@ -375,7 +370,27 @@ const CanvasParticle = {
 			if (currentBehavior === 'simple-orbit') simpleOrbit(p, { x: canvas.width * .5, y: canvas.height * .5});
 
 			// spring
-			if (currentBehavior === 'spring') spring(p);
+			if (currentBehavior === 'spring') {
+
+				let target = {
+					head: true,
+					x: mousePos.x,
+					y: mousePos.y,
+				}
+
+				if (i !== 0) {
+
+					// follows the prev particle
+					target = {
+						x: particles[i - 1].state.x,
+						y: particles[i - 1].state.y,
+					}
+
+				}
+
+				spring(ctx, PARTICLE_COLOR, p, target);
+
+			}
 
 			// these are in-between. nested loop required.
 			for (let j = i + 1; j < PARTICLE_LENGTH; ++j) {

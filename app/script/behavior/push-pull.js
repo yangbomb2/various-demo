@@ -5,16 +5,16 @@
 
 const pushAndPull = (p, center, pull, particleLength) => {
 
-	const { x, y, move, rotation } = p.state;
-
 	p.state.freeMove = false;
 	p.state.moveWithTargetPosition = true;
 
-	let r;
-	let newRotation;
+	const { x, y, move, rotation } = p.state;
 
 	const cx = center.x;
 	const cy = center.y;
+
+	let r;
+	let newRotation;
 
 	if (pull) {
 
@@ -38,7 +38,7 @@ const pushAndPull = (p, center, pull, particleLength) => {
 		const dx = x - cx;
 		const dy = y - cy;
 		const dist = Math.sqrt(dx * dx + dy * dy);
-		const minDist = 50;
+		const minDist = 100;
 
 		if (dist < minDist) {
 
