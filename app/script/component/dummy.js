@@ -11,7 +11,7 @@ import style from 'StyleRoot/component/dummy.scss';
 
 // default states
 const getDefaultState = () => ({
-  isOkToRenderContent: true,
+	isOkToRenderContent: true,
 });
 
 const Dummy = {};

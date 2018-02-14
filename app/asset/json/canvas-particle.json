@@ -16,7 +16,7 @@
                 "type": "radio",
                 "value": "simple-collision",
                 "label": "simple collision",
-                "active": true,
+                "active": false,
 				"description": "Basic collision test.",
 				"particle" : {
 					"length": 100,
@@ -84,12 +84,37 @@
                 "value": "spring",
                 "label": "spring",
                 "active": false,
-				"description": "TODO.",
+				"description": "Connected spring on nodes.",
 				"particle": {
 					"length": 20,
 					"radius": 30
 				}
-            }
+			},
+			{
+				"type": "radio",
+				"value": "shoaling",
+				"label": "shoaling",
+				"active": true,
+				"description": "TODO",
+				"particle": {
+					"length": 50,
+					"radius": 10
+				},
+				"sliders": [
+					{
+						"id": "radius",
+						"min": 0,
+						"max": 100,
+						"value": 1,
+						"step": 1,
+						"enabled": true,
+						"ticks": [
+							1,
+							100
+						]
+					}
+				]
+			}
         ]
     }
 }

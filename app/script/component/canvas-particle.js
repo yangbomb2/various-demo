@@ -11,6 +11,9 @@ import _ from 'lodash';
 import Hammer from 'hammerjs';
 import Particle from './particle';
 
+// bootstrap slider
+import BootstrapSlider from 'bootstrap-slider';
+
 // import behaviors
 import { spring, simpleCollision, simpleRotation, pushPull, simpleOrbit, lineBetween } from '../behavior';
 
@@ -53,7 +56,7 @@ let activeUIs = [];
 let UI = [];
 
 // factory fn
-const createUI = (uiGroup, i) => {
+const createUIGroup = (uiGroup, i) => {
 
 	const name = uiGroup.name;
 	const children = uiGroup.children;
@@ -63,12 +66,12 @@ const createUI = (uiGroup, i) => {
 		const { id, type, value, label, disabled, active } = ui;
 
 		const renderedUI = `
-      <div class="form-check">
-        <input class="form-check-input" type="${type}" name="${name}" id="${name}-${j}" value="${value}" ${disabled ? 'disabled' : ''} ${active ? 'checked' : ''}>
-        <label class="form-check-label" for="${name}-${j}">
-          ${label}
-        </label>
-      </div>`;
+		<div class="form-check">
+			<input class="form-check-input" type="${type}" name="${name}" id="${name}-${j}" value="${value}" ${disabled ? 'disabled' : ''} ${active ? 'checked' : ''}>
+			<label class="form-check-label" for="${name}-${j}">
+			${label}
+			</label>
+		</div>`;
 
 		all += renderedUI.trim();
 
@@ -77,13 +80,55 @@ const createUI = (uiGroup, i) => {
 	}, '');
 
 	const group = `
-    <fieldset class="form-group">
-       <legend class="col-form-label col-sm-2">${name}</legend>
-       ${childrenHTML}
-    </fieldset>
-  `.trim();
+		<fieldset class="form-group">
+			<legend class="col-form-label col-sm-2">${name}</legend>
+			${childrenHTML}
+		</fieldset>
+	`.trim();
 
 	return group;
+
+}
+
+
+const sliderChange = (slider, value) => {
+
+	const { id } = slider.options;
+
+	console.log(id, value, slider.options);
+
+}
+
+let sliders = [];
+const createSlider = () => {
+
+	const container = document.getElementsByClassName('ui-sliders')[0];
+
+	// destroy
+	sliders.forEach(prevSlider => prevSlider.destroy());
+	sliders = [];
+	container.innerHTML = '';
+
+	// console.log(activeUIs);
+
+	if (activeUIs.sliders) {
+
+		activeUIs.sliders.forEach((sliderOption, i) => {
+
+			const el = document.createElement('div');
+			const id = `slider-${i}`;
+			el.id = id;
+			container.appendChild(el);
+
+			// slider js
+			const slider = new BootstrapSlider(`#${id}`, sliderOption);
+			slider.on('slide', sliderChange.bind(null, slider));
+
+			sliders.push(slider);
+
+		});
+
+	}
 
 }
 
@@ -195,7 +240,7 @@ const CanvasParticle = {
 				UI.push(json.ui);
 
 				let uiHTML = '';
-				UI.forEach((uiGroup, i) => uiHTML += createUI(uiGroup, i));
+				UI.forEach((uiGroup, i) => uiHTML += createUIGroup(uiGroup, i));
 				form.innerHTML = uiHTML;
 
 				// default active
@@ -267,6 +312,9 @@ const CanvasParticle = {
 
 		console.log('activeUIs: ', activeUIs);
 		console.log(`currentBehavior: ${currentBehavior}`);
+
+		// creat sliders
+		createSlider();
 
 		// creat particle
 		createParticle();

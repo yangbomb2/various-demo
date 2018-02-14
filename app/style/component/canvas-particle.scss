@@ -7,6 +7,9 @@
 
 @import '../base';
 
+// bootstrap slider
+@import 'bootstrap-slider/dist/css/bootstrap-slider.css';
+
 .app {
   position: relative;
   height: 100%;
@@ -40,6 +43,14 @@
 	height: auto;
 	background:#fefefe;
 	border-bottom: 1px solid #d6d6d6;
+}
+
+.ui-sliders {
+	.slider {
+		display: block;
+		width: calc(100% - 1em);
+		margin: 1.5em auto;
+	}
 }
 
 .info {
