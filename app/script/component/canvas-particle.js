@@ -92,6 +92,11 @@ const createUIGroup = (uiGroup, i) => {
 }
 
 
+/**
+ * Slider change handler
+ * @param {String} slider name
+ * @param {Number} value
+ */
 const sliderChange = (slider, value) => {
 
 	const { id } = slider.options;
@@ -120,21 +125,26 @@ const createSlider = () => {
 
 		activeUIs.sliders.forEach((sliderOption, i) => {
 
+			// wrapper
+			const wrapper = document.createElement('div');
+			wrapper.className = 'slider-wrapper';
+
 			// label
 			const label = document.createElement('span');
 			label.className = 'label';
 			label.innerText = `${sliderOption.name}`;
-			container.appendChild(label);
+			wrapper.appendChild(label);
 
 			const el = document.createElement('div');
 			const id = `slider-${i}`;
 			el.id = id;
-			container.appendChild(el);
+			wrapper.appendChild(el);
+
+			container.appendChild(wrapper);
 
 			// slider js
 			const slider = new BootstrapSlider(`#${id}`, sliderOption);
 			slider.on('slide', sliderChange.bind(null, slider));
-
 			sliders.push(slider);
 
 		});
@@ -144,7 +154,7 @@ const createSlider = () => {
 }
 
 // position all particle in random coordinates
-const spreadParticleInRandomPosition = () => {
+const positionParicleRandomly = () => {
 
 	isOkToApplyBehavior = false;
 
@@ -329,7 +339,7 @@ const CanvasParticle = {
 
 		// creat particle
 		createParticle();
-		spreadParticleInRandomPosition();
+		positionParicleRandomly();
 
 	},
 
@@ -361,7 +371,7 @@ const CanvasParticle = {
 
 			if (currentBehavior === 'simple-orbit' || currentBehavior === 'push-and-pull') {
 
-				spreadParticleInRandomPosition();
+				positionParicleRandomly();
 
 			}
 

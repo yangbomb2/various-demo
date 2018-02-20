@@ -38,7 +38,8 @@
 }
 
 .ui-container {
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
 	position: relative;
 	height: auto;
 	background:#fefefe;
@@ -48,10 +49,23 @@
 .ui-sliders {
 	margin: 45px 0;
 
+	.slider-wrapper {
+		margin: 1em auto 3em;
+
+		& + .slider-wrapper {
+			padding-top: 1em;
+			border-top: 1px solid #ededed;
+		}
+	}
+
+	.label {
+		display: inline-block;
+		margin-bottom: 15px;
+	}
+
 	.slider {
 		display: block;
 		width: calc(100% - 1em);
-		margin: 4em auto;
 
 		.tooltip {
 			opacity: 1;

@@ -76,7 +76,8 @@
 						"value": 50,
 						"step": 1,
 						"enabled": true,
-						"tooltip": "always"
+						"tooltip": "always",
+						"tooltip_position": "bottom"
 					}
 				]
             },
@@ -106,8 +107,8 @@
 				"type": "radio",
 				"value": "shoaling",
 				"label": "shoaling",
-				"active": false,
-				"disabled": true,
+				"active": true,
+				"disabled": false,
 				"description": "Shoaling",
 				"particle": {
 					"length": 50,
@@ -115,28 +116,30 @@
 				},
 				"sliders": [
 					{
-						"id": "radius",
-						"name": "radius",
+						"id": "popularity",
+						"name": "popularity",
 						"min": 0,
 						"max": 100,
 						"value": 1,
 						"step": 1,
 						"enabled": true,
 						"tooltip": "always",
+						"tooltip_position": "bottom",
 						"ticks": [
 							1,
 							100
 						]
 					},
 					{
-						"id": "size",
-						"name": "size",
+						"id": "density",
+						"name": "density",
 						"min": 0,
 						"max": 100,
 						"value": 1,
 						"step": 1,
 						"enabled": true,
 						"tooltip": "always",
+						"tooltip_position": "bottom",
 						"ticks": [
 							1,
 							100
