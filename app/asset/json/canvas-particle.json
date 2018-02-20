@@ -16,7 +16,7 @@
                 "type": "radio",
                 "value": "simple-collision",
                 "label": "simple collision",
-                "active": false,
+                "active": true,
 				"description": "Basic collision test.",
 				"particle" : {
 					"length": 100,
@@ -66,7 +66,19 @@
 				"particle": {
 					"length": 300,
 					"radius": 1
-				}
+				},
+				"sliders": [
+					{
+						"id": "line-length",
+						"name": "line-length",
+						"min": 25,
+						"max": 120,
+						"value": 50,
+						"step": 1,
+						"enabled": true,
+						"tooltip": "always"
+					}
+				]
             },
             {
                 "type": "radio",
@@ -84,7 +96,7 @@
                 "value": "spring",
                 "label": "spring",
                 "active": false,
-				"description": "Connected spring on nodes.",
+				"description": "Connected spring on nodes. The head node will follow mouse poistion.",
 				"particle": {
 					"length": 20,
 					"radius": 30
@@ -94,8 +106,9 @@
 				"type": "radio",
 				"value": "shoaling",
 				"label": "shoaling",
-				"active": true,
-				"description": "TODO",
+				"active": false,
+				"disabled": true,
+				"description": "Shoaling",
 				"particle": {
 					"length": 50,
 					"radius": 10
@@ -103,11 +116,27 @@
 				"sliders": [
 					{
 						"id": "radius",
+						"name": "radius",
 						"min": 0,
 						"max": 100,
 						"value": 1,
 						"step": 1,
 						"enabled": true,
+						"tooltip": "always",
+						"ticks": [
+							1,
+							100
+						]
+					},
+					{
+						"id": "size",
+						"name": "size",
+						"min": 0,
+						"max": 100,
+						"value": 1,
+						"step": 1,
+						"enabled": true,
+						"tooltip": "always",
 						"ticks": [
 							1,
 							100

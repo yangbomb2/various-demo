@@ -18,7 +18,6 @@ import BootstrapSlider from 'bootstrap-slider';
 import { spring, simpleCollision, simpleRotation, pushPull, simpleOrbit, lineBetween } from '../behavior';
 
 // particle related
-const PARTICLE_BETWEEN_MIN_DIST = 80;
 const PARTICLE_COLOR = 'rgba(33,33,33,1)';
 const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
 const BG_COLOR = 'rgba(251,251,251,1)';
@@ -32,6 +31,8 @@ const ctx = canvas.getContext('2d');
 // set width & height
 let PARTICLE_LENGTH = 100; // 250
 let PARTICLE_RADIUS = 2; // 3
+let PARTICLE_BETWEEN_LINE_DIST = 50; // see json for min value
+
 let WIDTH = window.innerWidth;
 let HEIGHT = window.innerHeight;
 let particles = [];
@@ -97,6 +98,12 @@ const sliderChange = (slider, value) => {
 
 	console.log(id, value, slider.options);
 
+	if (id === 'line-length') {
+
+		PARTICLE_BETWEEN_LINE_DIST = value;
+
+	}
+
 }
 
 let sliders = [];
@@ -109,11 +116,15 @@ const createSlider = () => {
 	sliders = [];
 	container.innerHTML = '';
 
-	// console.log(activeUIs);
-
 	if (activeUIs.sliders) {
 
 		activeUIs.sliders.forEach((sliderOption, i) => {
+
+			// label
+			const label = document.createElement('span');
+			label.className = 'label';
+			label.innerText = `${sliderOption.name}`;
+			container.appendChild(label);
 
 			const el = document.createElement('div');
 			const id = `slider-${i}`;
@@ -447,7 +458,11 @@ const CanvasParticle = {
 				if (currentBehavior === 'simple-collision') simpleCollision(p, particles[j], PARTICLE_RADIUS * 2);
 
 				// check in-between distance against neibors and draw line
-				if (currentBehavior === 'line-between') lineBetween(p, particles[j], PARTICLE_BETWEEN_MIN_DIST, ctx);
+				if (currentBehavior === 'line-between') {
+
+					lineBetween(p, particles[j], PARTICLE_BETWEEN_LINE_DIST, ctx);
+
+				}
 
 			}
 

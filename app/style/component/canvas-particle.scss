@@ -46,10 +46,18 @@
 }
 
 .ui-sliders {
+	margin: 45px 0;
+
 	.slider {
 		display: block;
 		width: calc(100% - 1em);
-		margin: 1.5em auto;
+		margin: 4em auto;
+
+		.tooltip {
+			opacity: 1;
+			font-size: 10px;
+			font-family: inherit;
+		}
 	}
 }
 
