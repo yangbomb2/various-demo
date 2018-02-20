@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "bootstrap": "^4.0.0",
+    "bootstrap-slider": "^10.0.0",
     "browser-detect": "^0.2.22",
     "es6-promise": "^4.1.1",
     "exenv": "^1.2.2",
