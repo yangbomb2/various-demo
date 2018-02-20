@@ -107,8 +107,8 @@
 				"type": "radio",
 				"value": "shoaling",
 				"label": "shoaling",
-				"active": true,
-				"disabled": false,
+				"active": false,
+				"disabled": true,
 				"description": "Shoaling",
 				"particle": {
 					"length": 50,
