@@ -9,17 +9,19 @@ import style from 'StyleRoot/component/canvas-particle.scss';
 // dependencies
 import _ from 'lodash';
 import Hammer from 'hammerjs';
+
 import Particle from './particle';
+import Boid from './boid';
 
 // bootstrap slider
 import BootstrapSlider from 'bootstrap-slider';
 
 // import behaviors
-import { spring, simpleCollision, simpleRotation, pushPull, simpleOrbit, lineBetween } from '../behavior';
+import { spring, simpleCollision, simpleRotation, pushPull, simpleOrbit, lineBetween, shoaling } from '../behavior';
 
 // particle related
-const PARTICLE_COLOR = 'rgba(33,33,33,1)';
-const PARTICLE_COLLIDE_COLOR = 'rgba(241,0,0,1)';
+const PARTICLE_COLOR = '33,33,33';
+const PARTICLE_COLLIDE_COLOR = '241,0,0';
 const BG_COLOR = 'rgba(251,251,251,1)';
 // particle related ends
 
@@ -39,7 +41,7 @@ let particles = [];
 
 // mouse related
 let useMousePosition = false;
-let mousePos = {
+let mousePosition = {
 	x: 0,
 	y: 0,
 };
@@ -92,6 +94,11 @@ const createUIGroup = (uiGroup, i) => {
 }
 
 
+/**
+ * Slider change handler
+ * @param {String} slider name
+ * @param {Number} value
+ */
 const sliderChange = (slider, value) => {
 
 	const { id } = slider.options;
@@ -120,21 +127,26 @@ const createSlider = () => {
 
 		activeUIs.sliders.forEach((sliderOption, i) => {
 
+			// wrapper
+			const wrapper = document.createElement('div');
+			wrapper.className = 'slider-wrapper';
+
 			// label
 			const label = document.createElement('span');
 			label.className = 'label';
 			label.innerText = `${sliderOption.name}`;
-			container.appendChild(label);
+			wrapper.appendChild(label);
 
 			const el = document.createElement('div');
 			const id = `slider-${i}`;
 			el.id = id;
-			container.appendChild(el);
+			wrapper.appendChild(el);
+
+			container.appendChild(wrapper);
 
 			// slider js
 			const slider = new BootstrapSlider(`#${id}`, sliderOption);
 			slider.on('slide', sliderChange.bind(null, slider));
-
 			sliders.push(slider);
 
 		});
@@ -143,8 +155,9 @@ const createSlider = () => {
 
 }
 
-// position all particle in random coordinates
-const spreadParticleInRandomPosition = () => {
+const reset = () => {
+
+	ctx.globalAlpha = 1;
 
 	isOkToApplyBehavior = false;
 
@@ -152,11 +165,9 @@ const spreadParticleInRandomPosition = () => {
 
 		const p = particles[i];
 
-		p.state.freeMove = false;
-		p.state.moveWithTargetPosition = true;
-
-		p.state.tx = Math.random() * canvas.width;
-		p.state.ty = Math.random() * canvas.height;
+		// position all particle in random coordinates
+		p.state.x = Math.random() * WIDTH;
+		p.state.y = Math.random() * HEIGHT;
 
 	}
 
@@ -173,22 +184,40 @@ const spreadParticleInRandomPosition = () => {
  */
 const createParticle = () => {
 
-	const { length, radius } = activeUIs.particle;
+	const { particle: { length, radius, randomSize } } = activeUIs;
 
 	// reset
 	PARTICLE_LENGTH = length;
 	PARTICLE_RADIUS = radius;
 	particles = [];
 
+	const Class = currentBehavior !== 'shoaling' ? Particle : Boid;
+
+	// 1 ~ PARTICLE_RADIUS
+	const maxSize = PARTICLE_RADIUS;
+	const minSize = 1;
+
 	// create particles
 	for (let i = 0; i < PARTICLE_LENGTH; ++i) {
 
-		const particle = new Particle({
+		const size = randomSize ? Math.floor(Math.random() * (maxSize - minSize + 1) + minSize) : PARTICLE_RADIUS;
+
+		// initial vector x, y
+		const min = 5;
+		const max = 10;
+		const vec = Math.floor(Math.random() * (max - min + 1)) + min;
+		const vx = (Math.random() - .5) * vec; // -vec ~ vec
+		const vy = (Math.random() - .5) * vec; // -vec ~ vec
+
+		const particle = new Class({
 			id: i,
-			ctx: ctx,
+			ctx,
 			w: WIDTH,
 			h: HEIGHT,
-			r: PARTICLE_RADIUS,
+			vx,
+			vy,
+			r: size,
+			mass: size,
 			defaultColor: PARTICLE_COLOR,
 			collideColor: PARTICLE_COLLIDE_COLOR,
 		});
@@ -254,9 +283,6 @@ const CanvasParticle = {
 				UI.forEach((uiGroup, i) => uiHTML += createUIGroup(uiGroup, i));
 				form.innerHTML = uiHTML;
 
-				// default active
-				this.setActiveUI();
-
 				setTimeout(() => {
 
 					// dispatch resize
@@ -264,6 +290,9 @@ const CanvasParticle = {
 					window.dispatchEvent(re);
 
 					req = requestAnimationFrame(this.tick.bind(this));
+
+					// default active
+					this.setActiveUI();
 
 				}, 500);
 
@@ -307,9 +336,6 @@ const CanvasParticle = {
 
 	setActiveUI() {
 
-		// TODO findout why
-		// ctx.globalAlpha = .25;
-
 		// find which ui is active
 		activeUIs = UI
 			.reduce((activeUIs, uiGroup) => activeUIs.concat(uiGroup.children.filter(ui => ui.active)), [])
@@ -321,15 +347,16 @@ const CanvasParticle = {
 
 		currentBehavior = activeUIs.value;
 
-		console.log('activeUIs: ', activeUIs);
-		console.log(`currentBehavior: ${currentBehavior}`);
+		console.log(`currentBehavior: ${currentBehavior}`, 'activeUIs: ', activeUIs);
 
 		// creat sliders
 		createSlider();
 
 		// creat particle
 		createParticle();
-		spreadParticleInRandomPosition();
+
+		// position particles randomly
+		reset();
 
 	},
 
@@ -340,8 +367,8 @@ const CanvasParticle = {
 		case 'mousemove':
 
 			const box = e.target.getBoundingClientRect();
-			mousePos.x = e.clientX - box.left;
-			mousePos.y = e.clientY - box.top;
+			mousePosition.x = e.clientX - box.left;
+			mousePosition.y = e.clientY - box.top;
 
 			break;
 
@@ -351,6 +378,17 @@ const CanvasParticle = {
 			mousePressed = true;
 			mousePressElapsed = window.performance.now();
 
+			if (currentBehavior === 'push-and-pull') {
+
+				for (let i = 0; i < particles.length; ++i) {
+
+					particles[i].state.vx = 0;
+					particles[i].state.vy = 0;
+
+				}
+
+			}
+
 			break;
 
 		case 'mouseup':
@@ -359,9 +397,9 @@ const CanvasParticle = {
 			mousePressed = false;
 			mousePressElapsed = window.performance.now() - mousePressElapsed;
 
-			if (currentBehavior === 'simple-orbit' || currentBehavior === 'push-and-pull') {
+			if (currentBehavior === 'push-and-pull') {
 
-				spreadParticleInRandomPosition();
+				// reset();
 
 			}
 
@@ -397,8 +435,8 @@ const CanvasParticle = {
 
 		for (let i = 0; i < PARTICLE_LENGTH; ++i) {
 
-			particles[i].props.w = WIDTH;
-			particles[i].props.h = HEIGHT;
+			particles[i].state.w = WIDTH;
+			particles[i].state.h = HEIGHT;
 
 		}
 
@@ -409,63 +447,103 @@ const CanvasParticle = {
 		// repaint
 		repaint();
 
-		// update
-		for (let i = 0; i < PARTICLE_LENGTH; ++i) {
+		const center = { x: canvas.width * .5, y: canvas.height * .5 };
 
-			const p = particles[i];
+		// behaviors
+		if (!isOkToApplyBehavior) return;
 
-			p.draw().update();
+		switch (currentBehavior) {
 
-			// behaviors
-			if (!isOkToApplyBehavior) continue;
+		case 'simple-collision':
+
+			// n-between collision detection & bounce
+			simpleCollision(particles);
+
+			break;
+
+		case 'simple-rotation':
 
 			// simple rotation
-			if (currentBehavior === 'simple-rotation') simpleRotation(p, { x: canvas.width * .5, y: canvas.height * .5 }, PARTICLE_LENGTH, mousePressed);
+			simpleRotation(particles, center, mousePressed);
+
+			break;
+
+		case 'push-and-pull':
 
 			// push-and-pull
-			if (currentBehavior === 'push-and-pull') pushPull(p, mousePos, mousePressed, PARTICLE_LENGTH);
+			pushPull(particles, mousePosition, mousePressed, ctx);
+
+			break;
+
+		case 'simple-orbit':
 
 			// simple orbit
-			if (currentBehavior === 'simple-orbit') simpleOrbit(p, { x: canvas.width * .5, y: canvas.height * .5});
+			simpleOrbit(particles, center);
+
+			break;
+
+		case 'line-between':
+
+			// check in-between distance against neibors and draw line`
+			lineBetween(particles, ctx, PARTICLE_BETWEEN_LINE_DIST);
+
+			break;
+
+		case 'spring':
 
 			// spring
-			if (currentBehavior === 'spring') {
+			spring(particles, mousePosition, ctx, PARTICLE_COLOR);
 
-				let target = {
-					head: true,
-					x: mousePos.x,
-					y: mousePos.y,
-				}
+			break;
 
-				if (i !== 0) {
+		case 'shoaling':
 
-					// follows the prev particle
-					target = {
-						x: particles[i - 1].state.x,
-						y: particles[i - 1].state.y,
-					}
+			// simple shoaling
+			shoaling(particles, center);
 
-				}
+			break;
 
-				spring(ctx, PARTICLE_COLOR, p, target);
+		default:
+			//
+		}
+
+		this.boundaryCheck();
+
+	},
+
+	// simple boundary check & bounce
+	boundaryCheck() {
+
+		for (let i = 0; i < particles.length; i++) {
+
+			const p = particles[i];
+			const { x, y, vx, vy, r } = p.state;
+
+			// boundary x
+			if (x - r < 0) {
+
+				p.state.x = r;
+				p.state.vx *= -1;
+
+			} else if (x + r > WIDTH) {
+
+				p.state.x = WIDTH - r;
+				p.state.vx *= -1;
 
 			}
 
-			// these are in-between. nested loop required.
-			for (let j = i + 1; j < PARTICLE_LENGTH; ++j) {
+			// boundary y
+			if (y - r < 0) {
 
-				// n-between collision detection & bounce
-				if (currentBehavior === 'simple-collision') simpleCollision(p, particles[j], PARTICLE_RADIUS * 2);
+				p.state.y = r;
+				p.state.vy *= -1;
 
-				// check in-between distance against neibors and draw line
-				if (currentBehavior === 'line-between') {
+			} else if (y + r > HEIGHT) {
 
-					lineBetween(p, particles[j], PARTICLE_BETWEEN_LINE_DIST, ctx);
-
-				}
+				p.state.y = HEIGHT - r;
+				p.state.vy *= -1;
 
 			}
-
 
 		}
 

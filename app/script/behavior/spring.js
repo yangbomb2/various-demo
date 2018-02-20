@@ -11,61 +11,69 @@ const SPRING = .05;
 const FRICTION = .75;
 const SPRING_LENGTH = 40;
 
-const spring = (ctx, color, p, target) => {
+const spring = (particles, mousePosition, ctx, color) => {
 
-	p.state.freeMove = false;
-	p.state.moveWithTargetPosition = false;
+	for (let i = 0; i < particles.length; ++i) {
 
-	const {x:tx, y:ty} = target;
-	let { x, y, vx, vy } = p.state;
-	const r = p.props.r;
+		const target = i === 0 ? mousePosition : {
+			x: particles[i - 1].state.x,
+			y: particles[i - 1].state.y,
+		};
 
-	// dist
-	const dx = x - tx;
-	const dy = y - ty;
+		const p = particles[i];
 
-	// fixed pos with SPRING_LENGTH as Radius(dist)
-	const angle = Math.atan2(dy, dx);
-	const tx2 = tx + Math.cos(angle) * r;
-	const ty2 = ty + Math.sin(angle) * r;
+		let { x, y, vx, vy, r } = p.state;
 
-	// acceleration, dist based
-	// farther, faster
-	const ax = (tx2 - x) * SPRING;
-	const ay = (ty2 - y) * SPRING;
+		// dist
+		const dx = x - target.x;
+		const dy = y - target.y;
 
-	vx += ax;
-	vy += ay;
+		// fixed pos with SPRING_LENGTH as Radius(dist)
+		const angle = Math.atan2(dy, dx);
+		const tx2 = target.x + Math.cos(angle) * r;
+		const ty2 = target.y + Math.sin(angle) * r;
 
-	// apply friction so it can stop
-	vx *= FRICTION;
-	vy *= FRICTION;
+		// acceleration, dist based
+		// farther, faster
+		const ax = (tx2 - x) * SPRING;
+		const ay = (ty2 - y) * SPRING;
 
-	x += vx;
-	y += vy;
+		vx += ax;
+		vy += ay;
 
-	// line
-	if (!target.head) {
+		// apply friction so it can stop
+		vx *= FRICTION;
+		vy *= FRICTION;
 
-		ctx.beginPath();
-		ctx.strokeStyle = color;
-		ctx.lineWidth = r;
-		ctx.lineCap = 'round';
-		ctx.lineJoin = 'round';
-		ctx.moveTo(tx, ty);
-		ctx.lineTo(x, y);
-		ctx.stroke();
-		ctx.closePath();
+		x += vx;
+		y += vy;
+
+		// line
+		if (i !== 0) {
+
+			ctx.beginPath();
+			ctx.strokeStyle = `rgba(${color}, 1)`;
+			ctx.lineWidth = r;
+			ctx.lineCap = 'round';
+			ctx.lineJoin = 'round';
+			ctx.moveTo(target.x, target.y);
+			ctx.lineTo(x, y);
+			ctx.stroke();
+			ctx.closePath();
+
+		}
+
+		// update state
+		Object.assign(p.state, {
+			vx,
+			vy,
+			x,
+			y,
+		});
+
+		p.update();
 
 	}
-
-	// update state
-	Object.assign(p.state, {
-		vx,
-		vy,
-		x,
-		y,
-	});
 
 }
 

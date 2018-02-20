@@ -20,19 +20,8 @@
 				"description": "Basic collision test.",
 				"particle" : {
 					"length": 100,
-					"radius": 15
-				}
-            },
-            {
-                "type": "radio",
-                "value": "adv. collision",
-                "label": "advance collision",
-                "active": false,
-                "disabled": true,
-				"description": "todo",
-				"particle": {
-					"length": 100,
-					"radius": 3
+					"radius": 20,
+					"randomSize" : true
 				}
             },
             {
@@ -43,7 +32,8 @@
 				"description": "Particles rotate around the center of the canvas.",
 				"particle": {
 					"length": 250,
-					"radius": 2
+					"radius": 2,
+					"randomSize": false
 				}
             },
             {
@@ -53,8 +43,9 @@
                 "active": false,
 				"description": "When mouse pressed, it pulls particles around mouse pointer. If not, push particles with min radius.",
 				"particle": {
-					"length": 600,
-					"radius": 3
+					"length": 300,
+					"radius": 10,
+					"randomSize": true
 				}
             },
             {
@@ -65,7 +56,8 @@
 				"description": "In a close proximity, draw lines between close neighbors.",
 				"particle": {
 					"length": 300,
-					"radius": 1
+					"radius": 1,
+					"randomSize": false
 				},
 				"sliders": [
 					{
@@ -76,7 +68,8 @@
 						"value": 50,
 						"step": 1,
 						"enabled": true,
-						"tooltip": "always"
+						"tooltip": "always",
+						"tooltip_position": "bottom"
 					}
 				]
             },
@@ -88,7 +81,8 @@
 				"description": "Particles orbiting around center of the canvas.",
 				"particle": {
 					"length": 100,
-					"radius": 5
+					"radius": 5,
+					"randomSize": true
 				}
             },
             {
@@ -99,7 +93,8 @@
 				"description": "Connected spring on nodes. The head node will follow mouse poistion.",
 				"particle": {
 					"length": 20,
-					"radius": 30
+					"radius": 30,
+					"randomSize": false
 				}
 			},
 			{
@@ -110,33 +105,36 @@
 				"disabled": true,
 				"description": "Shoaling",
 				"particle": {
-					"length": 50,
-					"radius": 10
+					"length": 15,
+					"radius": 10,
+					"randomSize": true
 				},
 				"sliders": [
 					{
-						"id": "radius",
-						"name": "radius",
+						"id": "popularity",
+						"name": "popularity",
 						"min": 0,
-						"max": 100,
+						"max":	 100,
 						"value": 1,
 						"step": 1,
 						"enabled": true,
 						"tooltip": "always",
+						"tooltip_position": "bottom",
 						"ticks": [
 							1,
 							100
 						]
 					},
 					{
-						"id": "size",
-						"name": "size",
+						"id": "density",
+						"name": "density",
 						"min": 0,
 						"max": 100,
 						"value": 1,
 						"step": 1,
 						"enabled": true,
 						"tooltip": "always",
+						"tooltip_position": "bottom",
 						"ticks": [
 							1,
 							100
