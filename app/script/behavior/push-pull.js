@@ -3,38 +3,56 @@
  * @param  {[type]} p [description]
  */
 
-const pushAndPull = (p, center, pull, particleLength) => {
+const CENTER_MASS = 1000;
 
-	p.state.freeMove = false;
-	p.state.moveWithTargetPosition = true;
-
-	const { x, y, move, rotation } = p.state;
+const pushAndPull = (particles, center, pull, ctx) => {
 
 	const cx = center.x;
 	const cy = center.y;
+	let tx;
+	let ty;
 
-	let r;
-	let newRotation;
+	for (let i = 0; i < particles.length; ++i) {
 
-	if (pull) {
+		const p = particles[i];
+		const { x, y, vx, vy, move, rotation, mass } = p.state;
 
-		// pull
+		p.update();
 
-		// radius
-		const r = Math.random() * 150;
-		const newRotation = rotation + Math.PI * 2 / particleLength * p.props.id;
+		if (pull) {
 
-		// get tx, ty
-		const tx = cx + Math.cos(newRotation) * r;
-		const ty = cy + Math.sin(newRotation) * r;
+			ctx.globalAlpha = .3;
 
-		p.state.tx = tx;
-		p.state.ty = ty;
+			// pull(gravitation)
+			p.state.x += vx;
+			p.state.y += vy;
 
-	} else {
+			const dx = cx - x;
+			const dy = cy - y;
+
+			const distSQ = dy * dy + dx * dx;
+			const dist = Math.sqrt(distSQ);
+
+			// G * m1 * m2 / distance * distance
+			const gForce = mass * CENTER_MASS / distSQ;
+
+			// acceleration with direction
+			const ax = gForce * dx / dist; // cos(theta)
+			const ay = gForce * dy / dist; // sin(theta)
+
+			// hide it if too close
+			if (dist <= 10) p.state.opacity = 0;
+			p.state.vx += ax / mass;
+			p.state.vy += ay / mass;
+
+			continue;
+
+		}
+
+		ctx.globalAlpha = 1;
+		p.state.opacity = 1;
 
 		// push
-
 		const dx = x - cx;
 		const dy = y - cy;
 		const dist = Math.sqrt(dx * dx + dy * dy);
@@ -44,11 +62,11 @@ const pushAndPull = (p, center, pull, particleLength) => {
 
 			// similar to collision
 			const theta = Math.atan2(dy, dx);
-			const tx = cx + Math.cos(theta) * minDist;
-			const ty = cy + Math.sin(theta) * minDist;
+			tx = cx + Math.cos(theta) * minDist;
+			ty = cy + Math.sin(theta) * minDist;
 
-			p.state.tx = tx;
-			p.state.ty = ty;
+			p.state.x += (tx - x) * .075;
+			p.state.y += (ty - y) * .075;
 
 		}
 

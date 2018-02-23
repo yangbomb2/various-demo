@@ -5,35 +5,40 @@
 
 const angleVec = Math.PI * 2 / 360;
 
-const simpleRotation = (p, center, particleLength, rotateFast = false) => {
+const simpleRotation = (particles, center, rotateFast = false) => {
 
-	const { x, y, freeMove, rotation } = p.state;
-	const { id } = p.props;
+	for (let i = 0; i < particles.length; ++i) {
 
-	p.state.freeMove = false;
-	p.state.moveWithTargetPosition = true;
+		const p = particles[i];
 
-	// center coord
-	const cx = center.x;
-	const cy = center.y;
+		const { id, x, y, rotation } = p.state;
 
-	// distance
-	const dx = x - cx;
-	const dy = y - cy;
+		// center coord
+		const cx = center.x;
+		const cy = center.y;
 
-	// radius
-	const r = id * 1.25;
-	const newAngle = rotation + (angleVec * id * 10);
+		// distance
+		const dx = x - cx;
+		const dy = y - cy;
 
-	// get tx, ty
-	const tx = cx + Math.cos(newAngle) * r;
-	const ty = cy + Math.sin(newAngle) * r;
+		// radius
+		const r = id * 1.25;
+		const newAngle = rotation + (angleVec * id * 10);
 
-	p.state.tx = tx;
-	p.state.ty = ty;
+		// get tx, ty
+		const tx = cx + Math.cos(newAngle) * r;
+		const ty = cy + Math.sin(newAngle) * r;
 
-	// rotate
-	p.state.rotation -= rotateFast ? .05 : .005;
+		// easing
+		p.state.x += (tx - x) * .07;
+		p.state.y += (ty - y) * .07;
+
+		// rotate
+		p.state.rotation -= rotateFast ? .05 : .005;
+
+		p.update();
+
+	}
 
 }
 
