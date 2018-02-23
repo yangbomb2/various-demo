@@ -4,33 +4,48 @@
  * @param {*} p2
  * @param {*} minDist
  */
-export default (p1, p2, minDist, ctx) => {
+export default (particles, ctx, minDist) => {
 
-	p1.state.freeMove = true;
-	p1.state.moveWithTargetPosition = false;
+	for (let i = 0; i < particles.length; ++i) {
 
-	const dx = p2.state.x - p1.state.x;
-	const dy = p2.state.y - p1.state.y;
+		const p1 = particles[i];
 
-	const dist = Math.sqrt(dx * dx + dy * dy);
+		// update x, y
+		const { vx, vy } = p1.state;
+		p1.state.x += vx;
+		p1.state.y += vy;
 
-	// Draw the line when distance is smaller
-	// then the minimum distance
-	if (dist < minDist) {
+		p1.update();
 
-		const proxmity = dist / minDist; // 0 ~ 1
+		for (let j = i + 1; j < particles.length; ++j) {
 
-		// Draw the line
-		ctx.beginPath();
+			const p2 = particles[j];
+			const dx = p2.state.x - p1.state.x;
+			const dy = p2.state.y - p1.state.y;
+			const dist = Math.sqrt(dx * dx + dy * dy);
 
-		ctx.strokeStyle = `rgba(1,1,1, ${1 - proxmity})`;
-		ctx.lineWidth = (proxmity * .5) + .5; // 0.5 ~ 1
+			// Draw the line when distance is smaller
+			// then the minimum distance
+			if (dist < minDist) {
 
-		ctx.moveTo(p1.state.x, p1.state.y);
-		ctx.lineTo(p2.state.x, p2.state.y);
-		ctx.stroke();
+				const proxmity = dist / minDist; // 0 ~ 1
 
-		ctx.closePath();
+				// Draw the line
+				ctx.beginPath();
+
+				ctx.strokeStyle = `rgba(1,1,1, ${1 - proxmity})`;
+				ctx.lineWidth = (proxmity * .5) + .5; // 0.5 ~ 1
+
+				ctx.moveTo(p1.state.x, p1.state.y);
+				ctx.lineTo(p2.state.x, p2.state.y);
+				ctx.stroke();
+
+				ctx.closePath();
+
+			}
+
+		}
+
 
 	}
 

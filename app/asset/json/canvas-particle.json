@@ -17,24 +17,57 @@
                 "value": "simple-collision",
                 "label": "simple collision",
                 "active": true,
-				"description": "Basic collision test.",
+				"description": "Simple collision test with static mass, velocity",
 				"particle" : {
-					"length": 100,
-					"radius": 15
+					"length": 50,
+					"radius": 30,
+					"randomSize": true
 				}
-            },
-            {
-                "type": "radio",
-                "value": "adv. collision",
-                "label": "advance collision",
-                "active": false,
-                "disabled": true,
-				"description": "todo",
+			},
+			{
+				"type": "radio",
+				"value": "collision",
+				"label": "collision",
+				"active": false,
+				"description": "Collision test with mass, momentum",
 				"particle": {
-					"length": 100,
-					"radius": 3
-				}
-            },
+					"length": 20,
+					"radius": 50,
+					"randomSize": true
+				},
+				"sliders": [
+					{
+						"id": "population",
+						"name": "population",
+						"min": 10,
+						"max": 30,
+						"value": 20,
+						"step": 1,
+						"enabled": true,
+						"tooltip": "always",
+						"tooltip_position": "bottom",
+						"ticks": [
+							10,
+							30
+						]
+					},
+					{
+						"id": "radius",
+						"name": "max radius/mass",
+						"min": 30,
+						"max": 70,
+						"value": 50,
+						"step": 1,
+						"enabled": true,
+						"tooltip": "always",
+						"tooltip_position": "bottom",
+						"ticks": [
+							30,
+							70
+						]
+					}
+				]
+			},
             {
                 "type": "radio",
                 "value": "simple-rotation",
@@ -43,7 +76,8 @@
 				"description": "Particles rotate around the center of the canvas.",
 				"particle": {
 					"length": 250,
-					"radius": 2
+					"radius": 2,
+					"randomSize": false
 				}
             },
             {
@@ -53,8 +87,9 @@
                 "active": false,
 				"description": "When mouse pressed, it pulls particles around mouse pointer. If not, push particles with min radius.",
 				"particle": {
-					"length": 600,
-					"radius": 3
+					"length": 300,
+					"radius": 10,
+					"randomSize": true
 				}
             },
             {
@@ -65,7 +100,8 @@
 				"description": "In a close proximity, draw lines between close neighbors.",
 				"particle": {
 					"length": 300,
-					"radius": 1
+					"radius": 1,
+					"randomSize": false
 				},
 				"sliders": [
 					{
@@ -89,7 +125,8 @@
 				"description": "Particles orbiting around center of the canvas.",
 				"particle": {
 					"length": 100,
-					"radius": 5
+					"radius": 5,
+					"randomSize": true
 				}
             },
             {
@@ -100,7 +137,8 @@
 				"description": "Connected spring on nodes. The head node will follow mouse poistion.",
 				"particle": {
 					"length": 20,
-					"radius": 30
+					"radius": 30,
+					"randomSize": false
 				}
 			},
 			{
@@ -111,15 +149,16 @@
 				"disabled": true,
 				"description": "Shoaling",
 				"particle": {
-					"length": 50,
-					"radius": 10
+					"length": 15,
+					"radius": 10,
+					"randomSize": true
 				},
 				"sliders": [
 					{
-						"id": "popularity",
-						"name": "popularity",
+						"id": "population",
+						"name": "population",
 						"min": 0,
-						"max": 100,
+						"max":	 100,
 						"value": 1,
 						"step": 1,
 						"enabled": true,
