@@ -17,13 +17,57 @@
                 "value": "simple-collision",
                 "label": "simple collision",
                 "active": true,
-				"description": "Basic collision test.",
+				"description": "Simple collision test with static mass, velocity",
 				"particle" : {
-					"length": 100,
-					"radius": 20,
-					"randomSize" : true
+					"length": 50,
+					"radius": 30,
+					"randomSize": true
 				}
-            },
+			},
+			{
+				"type": "radio",
+				"value": "collision",
+				"label": "collision",
+				"active": true,
+				"description": "Collision test with mass, momentum",
+				"particle": {
+					"length": 20,
+					"radius": 50,
+					"randomSize": true
+				},
+				"sliders": [
+					{
+						"id": "population",
+						"name": "population",
+						"min": 10,
+						"max": 30,
+						"value": 20,
+						"step": 1,
+						"enabled": true,
+						"tooltip": "always",
+						"tooltip_position": "bottom",
+						"ticks": [
+							10,
+							30
+						]
+					},
+					{
+						"id": "radius",
+						"name": "max radius/mass",
+						"min": 30,
+						"max": 70,
+						"value": 50,
+						"step": 1,
+						"enabled": true,
+						"tooltip": "always",
+						"tooltip_position": "bottom",
+						"ticks": [
+							30,
+							70
+						]
+					}
+				]
+			},
             {
                 "type": "radio",
                 "value": "simple-rotation",
@@ -111,8 +155,8 @@
 				},
 				"sliders": [
 					{
-						"id": "popularity",
-						"name": "popularity",
+						"id": "population",
+						"name": "population",
 						"min": 0,
 						"max":	 100,
 						"value": 1,

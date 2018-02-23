@@ -17,7 +17,16 @@ import Boid from './boid';
 import BootstrapSlider from 'bootstrap-slider';
 
 // import behaviors
-import { spring, simpleCollision, simpleRotation, pushPull, simpleOrbit, lineBetween, shoaling } from '../behavior';
+import {
+	spring,
+	collision,
+	simpleRotation,
+	pushPull,
+	simpleOrbit,
+	lineBetween,
+	shoaling,
+	boundaryCheck,
+} from '../behavior';
 
 // particle related
 const PARTICLE_COLOR = '33,33,33';
@@ -93,68 +102,6 @@ const createUIGroup = (uiGroup, i) => {
 
 }
 
-
-/**
- * Slider change handler
- * @param {String} slider name
- * @param {Number} value
- */
-const sliderChange = (slider, value) => {
-
-	const { id } = slider.options;
-
-	console.log(id, value, slider.options);
-
-	if (id === 'line-length') {
-
-		PARTICLE_BETWEEN_LINE_DIST = value;
-
-	}
-
-}
-
-let sliders = [];
-const createSlider = () => {
-
-	const container = document.getElementsByClassName('ui-sliders')[0];
-
-	// destroy
-	sliders.forEach(prevSlider => prevSlider.destroy());
-	sliders = [];
-	container.innerHTML = '';
-
-	if (activeUIs.sliders) {
-
-		activeUIs.sliders.forEach((sliderOption, i) => {
-
-			// wrapper
-			const wrapper = document.createElement('div');
-			wrapper.className = 'slider-wrapper';
-
-			// label
-			const label = document.createElement('span');
-			label.className = 'label';
-			label.innerText = `${sliderOption.name}`;
-			wrapper.appendChild(label);
-
-			const el = document.createElement('div');
-			const id = `slider-${i}`;
-			el.id = id;
-			wrapper.appendChild(el);
-
-			container.appendChild(wrapper);
-
-			// slider js
-			const slider = new BootstrapSlider(`#${id}`, sliderOption);
-			slider.on('slide', sliderChange.bind(null, slider));
-			sliders.push(slider);
-
-		});
-
-	}
-
-}
-
 const reset = () => {
 
 	ctx.globalAlpha = 1;
@@ -182,13 +129,13 @@ const reset = () => {
 /**
  *  Create Particles
  */
-const createParticle = () => {
+const createParticle = (particleLength, particleRadius) => {
 
 	const { particle: { length, radius, randomSize } } = activeUIs;
 
 	// reset
-	PARTICLE_LENGTH = length;
-	PARTICLE_RADIUS = radius;
+	PARTICLE_LENGTH = particleLength ? particleLength : length;
+	PARTICLE_RADIUS = particleRadius ?  particleRadius : radius;
 	particles = [];
 
 	const Class = currentBehavior !== 'shoaling' ? Particle : Boid;
@@ -235,6 +182,96 @@ const repaint = () => {
 
 	ctx.fillStyle = `${BG_COLOR}`;
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+}
+
+
+
+/**
+ * Slider change handler
+ * @param {String} slider name
+ * @param {Number} value
+ */
+let db;
+const sliderChange = (slider, value) => {
+
+	const { id } = slider.options;
+
+	// console.log(id, value, slider.options);
+
+	if (id === 'line-length') {
+
+		PARTICLE_BETWEEN_LINE_DIST = value;
+
+	}
+
+	if (id === 'population') {
+
+		// debounce
+		clearTimeout(db);
+		db = setTimeout(() => {
+
+			createParticle(value, PARTICLE_RADIUS);
+			reset();
+
+		}, 300);
+
+	}
+
+	if (id === 'radius') {
+
+		// debounce
+		clearTimeout(db);
+		db = setTimeout(() => {
+
+			createParticle(PARTICLE_LENGTH, value);
+			reset();
+
+		}, 300);
+
+	}
+
+}
+
+let sliders = [];
+const createSlider = () => {
+
+	const container = document.getElementsByClassName('ui-sliders')[0];
+
+	// destroy
+	sliders.forEach(prevSlider => prevSlider.destroy());
+	sliders = [];
+	container.innerHTML = '';
+
+	if (activeUIs.sliders) {
+
+		activeUIs.sliders.forEach((sliderOption, i) => {
+
+			// wrapper
+			const wrapper = document.createElement('div');
+			wrapper.className = 'slider-wrapper';
+
+			// label
+			const label = document.createElement('span');
+			label.className = 'label';
+			label.innerText = `${sliderOption.name}`;
+			wrapper.appendChild(label);
+
+			const el = document.createElement('div');
+			const id = `slider-${i}`;
+			el.id = id;
+			wrapper.appendChild(el);
+
+			container.appendChild(wrapper);
+
+			// slider js
+			const slider = new BootstrapSlider(`#${id}`, sliderOption);
+			slider.on('slide', sliderChange.bind(null, slider));
+			sliders.push(slider);
+
+		});
+
+	}
 
 }
 
@@ -457,7 +494,14 @@ const CanvasParticle = {
 		case 'simple-collision':
 
 			// n-between collision detection & bounce
-			simpleCollision(particles);
+			collision(particles, true);
+
+			break;
+
+		case 'collision':
+
+			// n-between collision detection & bounce
+			collision(particles, false);
 
 			break;
 
@@ -507,45 +551,13 @@ const CanvasParticle = {
 			//
 		}
 
-		this.boundaryCheck();
-
-	},
-
-	// simple boundary check & bounce
-	boundaryCheck() {
-
-		for (let i = 0; i < particles.length; i++) {
-
-			const p = particles[i];
-			const { x, y, vx, vy, r } = p.state;
-
-			// boundary x
-			if (x - r < 0) {
-
-				p.state.x = r;
-				p.state.vx *= -1;
-
-			} else if (x + r > WIDTH) {
-
-				p.state.x = WIDTH - r;
-				p.state.vx *= -1;
-
-			}
-
-			// boundary y
-			if (y - r < 0) {
-
-				p.state.y = r;
-				p.state.vy *= -1;
-
-			} else if (y + r > HEIGHT) {
-
-				p.state.y = HEIGHT - r;
-				p.state.vy *= -1;
-
-			}
-
-		}
+		// simple boundary check & bounce
+		boundaryCheck(particles, {
+			left: 0,
+			right: WIDTH,
+			top: 0,
+			bottom: HEIGHT,
+		});
 
 	},
 
