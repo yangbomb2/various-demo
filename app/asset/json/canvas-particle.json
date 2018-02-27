@@ -1,24 +1,23 @@
 {
-    "info": {
-        "title": "Canvas particle",
-        "subTitle": "Simple canvas experiment with some basic physics.",
-        "link" : {
-            "href":"https://github.com/yangbomb2/various-demo/tree/canvas-particle",
-            "linkLabel": "Code in the github",
-            "linkTarget": "_blank"
-        }
-    },
-
-    "ui" : {
-        "name": "behaviors",
-        "children": [
-            {
-                "type": "radio",
-                "value": "simple-collision",
-                "label": "simple collision",
-                "active": true,
+	"info": {
+		"title": "Canvas particle",
+		"subTitle": "Simple canvas experiment with some basic physics.",
+		"link": {
+			"href": "https://github.com/yangbomb2/various-demo/tree/canvas-particle",
+			"linkLabel": "Code in the github",
+			"linkTarget": "_blank"
+		}
+	},
+	"ui": {
+		"name": "behaviors",
+		"children": [
+			{
+				"type": "radio",
+				"value": "simple-collision",
+				"label": "simple collision",
+				"active": true,
 				"description": "Simple collision test with static mass, velocity",
-				"particle" : {
+				"particle": {
 					"length": 50,
 					"radius": 30,
 					"randomSize": true
@@ -68,35 +67,35 @@
 					}
 				]
 			},
-            {
-                "type": "radio",
-                "value": "simple-rotation",
-                "label": "simple rotation",
-                "active": false,
+			{
+				"type": "radio",
+				"value": "simple-rotation",
+				"label": "simple rotation",
+				"active": false,
 				"description": "Particles rotate around the center of the canvas.",
 				"particle": {
 					"length": 250,
 					"radius": 2,
 					"randomSize": false
 				}
-            },
-            {
-                "type": "radio",
-                "value": "push-and-pull",
-                "label": "push and pull",
-                "active": false,
+			},
+			{
+				"type": "radio",
+				"value": "push-and-pull",
+				"label": "push and pull",
+				"active": false,
 				"description": "When mouse pressed, it pulls particles around mouse pointer. If not, push particles with min radius.",
 				"particle": {
 					"length": 300,
 					"radius": 10,
 					"randomSize": true
 				}
-            },
-            {
-                "type": "radio",
-                "value": "line-between",
-                "label": "line inbetween",
-                "active": false,
+			},
+			{
+				"type": "radio",
+				"value": "line-between",
+				"label": "line inbetween",
+				"active": false,
 				"description": "In a close proximity, draw lines between close neighbors.",
 				"particle": {
 					"length": 300,
@@ -116,24 +115,24 @@
 						"tooltip_position": "bottom"
 					}
 				]
-            },
-            {
-                "type": "radio",
-                "value": "simple-orbit",
-                "label": "orbit",
-                "active": false,
+			},
+			{
+				"type": "radio",
+				"value": "simple-orbit",
+				"label": "orbit",
+				"active": false,
 				"description": "Particles orbiting around center of the canvas.",
 				"particle": {
 					"length": 100,
 					"radius": 5,
 					"randomSize": true
 				}
-            },
-            {
-                "type": "radio",
-                "value": "spring",
-                "label": "spring",
-                "active": false,
+			},
+			{
+				"type": "radio",
+				"value": "nodes",
+				"label": "nodes + spring",
+				"active": false,
 				"description": "Connected spring on nodes. The head node will follow mouse poistion.",
 				"particle": {
 					"length": 20,
@@ -158,7 +157,7 @@
 						"id": "population",
 						"name": "population",
 						"min": 0,
-						"max":	 100,
+						"max": 100,
 						"value": 1,
 						"step": 1,
 						"enabled": true,
@@ -185,7 +184,55 @@
 						]
 					}
 				]
+			},
+			{
+				"type": "radio",
+				"value": "grid",
+				"label": "grid",
+				"active": true,
+				"disabled": false,
+				"description": "Grid + proximity",
+				"particle": {
+					"radius": 1,
+					"grid": {
+						"col": 20,
+						"row": 20
+					},
+					"randomSize": false
+				},
+				"sliders": [
+					{
+						"id": "magnitude",
+						"name": "magnitude",
+						"min": 0.1,
+						"max": 0.5,
+						"value": 0.25,
+						"step": 0.1,
+						"enabled": true,
+						"tooltip": "always",
+						"tooltip_position": "bottom",
+						"ticks": [
+							0.1,
+							0.5
+						]
+					},
+					{
+						"id": "range",
+						"name": "range(radius of effect)",
+						"min": 100,
+						"max": 300,
+						"value": 200,
+						"step": 1,
+						"enabled": true,
+						"tooltip": "always",
+						"tooltip_position": "bottom",
+						"ticks": [
+							100,
+							300
+						]
+					}
+				]
 			}
-        ]
-    }
+		]
+	}
 }

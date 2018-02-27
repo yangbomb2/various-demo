@@ -48,15 +48,43 @@ class Particle {
 
 	}
 
+	postion(position) {
+
+		const { x = 0, y = 0, z = 0 } = position;
+
+		this.state.x = x;
+		this.state.y = y;
+		this.state.z = z;
+
+		return this;
+
+	}
+
+	/**
+	 * Getter
+	 *
+	 * return Object
+	 */
+	get position() {
+
+		return {
+			x: this.state.x,
+			y: this.state.y,
+			z: this.state.z,
+		}
+
+	}
+
 	// default states
 	getDefaultState(options) {
 
-		const { w, h, vx, vy, defaultColor } = options;
+		const { x, y, z = 0, w, h, vx, vy, defaultColor } = options;
 
 		return {
 			...options,
-			x: Math.random() * w,
-			y: Math.random() * h,
+			x,
+			y,
+			z,
 			vx,
 			vy,
 			opacity: 1,

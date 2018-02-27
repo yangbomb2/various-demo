@@ -7,6 +7,7 @@ import pushPull from './push-pull';
 import spring from './spring';
 import shoaling from './shoaling';
 import boundaryCheck from './boundary-check';
+import grid from './grid';
 
 export {
 	collision,
@@ -17,4 +18,5 @@ export {
 	spring,
 	shoaling,
 	boundaryCheck,
+	grid,
 };
