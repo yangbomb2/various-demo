@@ -3,7 +3,7 @@
 */
 
 // https://konvajs.github.io/docs/
-import Konva from 'konva';
+// import Konva from 'konva';
 
 const SPRING = .03;
 const FRICTION = .85;
@@ -18,12 +18,15 @@ const grid = (particles, grid, boundary, mousePoistion, ctx, range = 200, magnit
 	// each grid unit
 	for (let i = 0; i < particles.length; ++i) {
 
-		const p0 = particles[i];
+		const p0 = particles[i]; // self | top left
+		let p1; // top right
+		let p2; // bottom right
+		let p3; // bottom left
 
 		// grid x, y
 		// i.g (0,0) (0,1)...
 		const {
-			gridPosition: { x: x0, y: y0, w, h},
+			gridPosition: { x: gx0, y: gy0, w, h },
 			x,
 			y,
 		} = p0.state;
@@ -31,12 +34,13 @@ const grid = (particles, grid, boundary, mousePoistion, ctx, range = 200, magnit
 		// dist between grid position(not the current position) and mouse position
 
 		// simple trigometry
-		const dx = (x0 * w) - mousePoistion.x;
-		const dy = (y0 * h) - mousePoistion.y;
+		const dx = (gx0 * w) - mousePoistion.x;
+		const dy = (gy0 * h) - mousePoistion.y;
 		const distSQ = dx * dx + dy * dy;
 		const dist = Math.sqrt(distSQ);
 		const phi = Math.atan2(dy, dx);
 		const withinRange = dist < range;
+		const proximity = magnitude + (dist / range * (1 - magnitude)); // .5 ~ 1
 
 		let tx;
 		let ty;
@@ -45,16 +49,20 @@ const grid = (particles, grid, boundary, mousePoistion, ctx, range = 200, magnit
 		if (withinRange) {
 
 			// min + percent with magnitude
-			const proximity = magnitude + (dist / range * (1 - magnitude)); // .5 ~ 1
 			const radius = range * proximity;
 
 			tx = mousePoistion.x + Math.cos(phi) * radius;
 			ty = mousePoistion.y + Math.sin(phi) * radius;
 
+			// ctx.rect(gx0 * w, gy0 * h, 100, 100);
+			// ctx.rect(x, y, 100, 100);
+			// ctx.fill();
+			// p1, p2, p3
+
 		} else {
 
-			tx = x0 * w;
-			ty = y0 * h;
+			tx = gx0 * w;
+			ty = gy0 * h;
 
 		}
 
@@ -82,45 +90,69 @@ const grid = (particles, grid, boundary, mousePoistion, ctx, range = 200, magnit
 		p0.state.y += vy;
 
 		p0.state.collision = withinRange;
-
 		p0.update();
 
 		// draw lines to only adjcent neighbors
 		// +- 1 on x,y axis
+		ctx.beginPath();
+
 		for (let j = i; j < particles.length; j++) {
 
-			const p1 = particles[j];
-			const { x: x1, y: y1 } = p1.state.gridPosition;
+			const n = particles[j];
+			const { x: gx1, y: gy1 } = n.state.gridPosition;
 
-			if (Math.abs(x0 - x1) === 1 && y0 - y1 === 0 ||
-				x0 - x1 === 0 && Math.abs(y0 - y1) === 1) {
+			if (gx1 - gx0 === 1 && gy1 - gy0 === 0 ||
+				gx1 - gx0 === 0 && gy1 - gy0 === 1) {
 
-				ctx.beginPath();
-				ctx.strokeStyle = withinRange ?  'rgba(239,96,96,.25)' : 'rgba(33,33,33,.25)';
+				ctx.strokeStyle = withinRange ? 'rgba(239,96,96,.25)' : 'rgba(33,33,33,.25)';
 				ctx.lineWidth = withinRange ? 1 : .5;
 
 				ctx.moveTo(p0.state.x, p0.state.y);
-				ctx.lineTo(p1.state.x, p1.state.y);
-
-				ctx.stroke();
-				ctx.closePath();
+				ctx.lineTo(n.state.x, n.state.y);
 
 			}
 
+			// get the rest of points(n + 1, n + 2, n + 3)
+			if (gx1 - gx0 === 1 && gy1 - gy0 === 0) p1 = n; // top right
+			if (gx1 - gx0 === 1 && gy1 - gy0 === 1) p2 = n; // bottom right
+			if (gx1 - gx0 === 0 && gy1 - gy0 === 1) p3 = n; // bottom right
+
 		}
 
+		// lines end
+		// fill
+		if (withinRange && p1 && p2 && p3) {
+
+			// single color
+			// ctx.fillStyle = `rgba(239,96,96, ${1 - proximity})`;
+
+			// use canvas gradient
+			// gradient ref
+			// https://digitalsynopsis.com/design/beautiful-color-gradients-backgrounds/
+			const gradient = ctx.createLinearGradient(left, top, right, bottom);
+			gradient.addColorStop(0, `rgba(255,236,210,${1 - proximity})`); // #ffecd2
+			gradient.addColorStop(.5, `rgba(150,222,210,${1 - proximity})`); // #ffecd2
+			gradient.addColorStop(1, `rgba(252,182,159,${1 - proximity})`); // #fcb69f
+			ctx.fillStyle = gradient;
+
+			// ctx.fillStyle = 'red';
+			ctx.moveTo(p0.state.x, p0.state.y);
+			ctx.lineTo(p1.state.x, p1.state.y);
+			ctx.lineTo(p2.state.x, p2.state.y);
+			ctx.lineTo(p3.state.x, p3.state.y);
+			ctx.fill();
+
+		}
+
+		ctx.stroke();
 
 	}
 
 }
 
-
 // with konva.
 // not using this.
 const gridKonva = (stage, grid, boundary, mousePoistion) => {
-
-	// console.log(stage);
-	console.log(mousePoistion)
 
 	// const nodeLayer = stage.find();
 	const layer = stage.getLayers()[0];
@@ -143,16 +175,16 @@ const gridKonva = (stage, grid, boundary, mousePoistion) => {
 		const node = nodes[i];
 
 		// grid x, y
-		const x0 = i % (col + 1);
-		const y0 = Math.floor(i / (col + 1));
+		const gx0 = i % (col + 1);
+		const gy0 = Math.floor(i / (col + 1));
 
 		// update x, y position
 		if (!node.dragging) {
 
 			// original position
 			node.position({
-				x: x0 * w,
-				y: y0 * h,
+				x: gx0 * w,
+				y: gy0 * h,
 			});
 
 		} else {
@@ -170,11 +202,11 @@ const gridKonva = (stage, grid, boundary, mousePoistion) => {
 
 				const neighbor = nodes[j];
 
-				const x1 = j % (col + 1);
-				const y1 = Math.floor(j / (col + 1));
+				const gx1 = j % (col + 1);
+				const gy1 = Math.floor(j / (col + 1));
 
-				if (Math.abs(x0 - x1) === 1 && y0 - y1 === 0 ||
-					x0 - x1 === 0 && Math.abs(y0 - y1) === 1) {
+				if (Math.abs(gx0 - gx1) === 1 && gy0 - gy1 === 0 ||
+					gx0 - gx1 === 0 && Math.abs(gy0 - gy1) === 1) {
 
 					ctx.beginPath();
 					ctx.strokeStyle = 'rgba(1,1,1,1)';
