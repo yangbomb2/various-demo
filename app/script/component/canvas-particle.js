@@ -13,6 +13,9 @@ import Hammer from 'hammerjs';
 import Particle from './particle';
 import Boid from './boid';
 
+// https://konvajs.github.io/docs/
+import Konva from 'konva';
+
 // bootstrap slider
 import BootstrapSlider from 'bootstrap-slider';
 
@@ -26,6 +29,7 @@ import {
 	lineBetween,
 	shoaling,
 	boundaryCheck,
+	grid,
 } from '../behavior';
 
 // particle related
@@ -36,13 +40,14 @@ const BG_COLOR = 'rgba(251,251,251,1)';
 
 // refs
 const canvasContainer = document.getElementsByClassName('canvas-container')[0];
-const canvas = document.getElementsByTagName('canvas')[0];
-const ctx = canvas.getContext('2d');
+let canvas;
+let ctx;
 
 // set width & height
 let PARTICLE_LENGTH = 100; // 250
 let PARTICLE_RADIUS = 2; // 3
-let PARTICLE_BETWEEN_LINE_DIST = 50; // see json for min value
+let PARTICLE_MIN_DIST = 50; // see json for min value
+let MAGNITUDE = 0; // see json for min value
 
 let WIDTH = window.innerWidth;
 let HEIGHT = window.innerHeight;
@@ -54,18 +59,31 @@ let mousePosition = {
 	x: 0,
 	y: 0,
 };
+let boundary = {
+	left: 0,
+	right: WIDTH,
+	top: 0,
+	bottom: HEIGHT,
+};
+
+let center = {x : 0, y: 0};
+
 let mousePressInterval;
 let mousePressElapsed = 0;
 let mousePressed = false;
-let mousePointer = document.getElementsByClassName('mouse-pointer')[0];
 
 // animation frame
-let req;
+let requestAF;
 let currentBehavior = '';
 let isOkToApplyBehavior = false;
+
 // ui
 let activeUIs = [];
 let UI = [];
+
+// konva
+let konvaStage;
+let konvaLayer;
 
 // factory fn
 const createUIGroup = (uiGroup, i) => {
@@ -104,72 +122,142 @@ const createUIGroup = (uiGroup, i) => {
 
 const reset = () => {
 
-	ctx.globalAlpha = 1;
-
-	isOkToApplyBehavior = false;
-
-	for (let i = 0; i < particles.length; ++i) {
-
-		const p = particles[i];
-
-		// position all particle in random coordinates
-		p.state.x = Math.random() * WIDTH;
-		p.state.y = Math.random() * HEIGHT;
-
-	}
-
-	setTimeout(() => {
-
-		isOkToApplyBehavior = true;
-
-	}, 500);
+	if (ctx) ctx.globalAlpha = 1;
 
 }
 
 /**
- *  Create Particles
+ *  Create Particles or Konva Objects
  */
+
+// get grid unit per particle
+const getGridPosition = (col, row, w, h, i) => {
+
+	return {
+		x: i % col,
+		y: Math.floor(i / col),
+		w,
+		h,
+	}
+
+}
+
 const createParticle = (particleLength, particleRadius) => {
 
-	const { particle: { length, radius, randomSize } } = activeUIs;
+	const { particle: { length, radius, randomSize, grid } } = activeUIs;
+	const { top, right, bottom, left } = boundary;
 
 	// reset
 	PARTICLE_LENGTH = particleLength ? particleLength : length;
-	PARTICLE_RADIUS = particleRadius ?  particleRadius : radius;
+	PARTICLE_RADIUS = particleRadius ? particleRadius : radius;
 	particles = [];
 
+	// when grid
+	if (currentBehavior === 'grid') PARTICLE_LENGTH = (grid.col + 1) * (grid.row + 1);
+
+	// Particle base class
 	const Class = currentBehavior !== 'shoaling' ? Particle : Boid;
 
 	// 1 ~ PARTICLE_RADIUS
 	const maxSize = PARTICLE_RADIUS;
 	const minSize = 1;
 
-	// create particles
-	for (let i = 0; i < PARTICLE_LENGTH; ++i) {
+	if (activeUIs.useKonva) {
 
-		const size = randomSize ? Math.floor(Math.random() * (maxSize - minSize + 1) + minSize) : PARTICLE_RADIUS;
+		// grid
+		if (currentBehavior === 'grid') {
 
-		// initial vector x, y
-		const min = 5;
-		const max = 10;
-		const vec = Math.floor(Math.random() * (max - min + 1)) + min;
-		const vx = (Math.random() - .5) * vec; // -vec ~ vec
-		const vy = (Math.random() - .5) * vec; // -vec ~ vec
+			// get row based on fixed col
+			// each grid unit
+			const layer = new Konva.Layer();
+			const nodeGroup = new Konva.Group();
 
-		const particle = new Class({
-			id: i,
-			ctx,
-			w: WIDTH,
-			h: HEIGHT,
-			vx,
-			vy,
-			r: size,
-			mass: size,
-			defaultColor: PARTICLE_COLOR,
-			collideColor: PARTICLE_COLLIDE_COLOR,
-		});
+			layer.add(nodeGroup);
 
-		particles.push(particle);
+			let node;
+			for (let i = 0; i < PARTICLE_LENGTH; i++) {
+
+				// grid x, y
+				if (i === 0) {
+
+					node = new Konva.Circle({
+						name: 'node',
+						x: 0,
+						y: 0,
+						radius: PARTICLE_RADIUS,
+						fill: PARTICLE_COLOR,
+						draggable: true,
+					});
+
+				} else {
+
+					// clone
+					node = node.clone({
+						x: 0,
+						y: 0,
+					});
+
+				}
+
+				node.dragging = false;
+				nodeGroup.add(node);
+
+			}
+
+			konvaStage.add(layer);
+
+			// konvaStage.on('dragmove', (e) => {
+			// });
+
+			// konvaStage.on('dragend', (e) => {
+			// });
+
+			// konvaStage.on('dragmove', (e) => {
+			// });
+
+		}
+
+	} else {
+
+		// create particles
+		for (let i = 0; i < PARTICLE_LENGTH; ++i) {
+
+			const size = randomSize ? Math.floor(Math.random() * (maxSize - minSize + 1) + minSize) : PARTICLE_RADIUS;
+
+			// get row based on fixed col
+			// grid x, y
+			const gridPosition = grid ? getGridPosition(grid.col + 1, grid.row + 1, Math.round(WIDTH / grid.col), Math.round(HEIGHT / grid.row), i) : void 0;
+
+			// initial vector x, y
+			const min = 5;
+			const max = 10;
+			const vec = Math.floor(Math.random() * (max - min + 1)) + min;
+			const vx = (Math.random() - .5) * vec; // -vec ~ vec
+			const vy = (Math.random() - .5) * vec; // -vec ~ vec
+			const x = grid ? (gridPosition.x * gridPosition.w) : Math.random() * WIDTH;
+			const y = grid ? (gridPosition.y * gridPosition.h) : Math.random() * HEIGHT;
+
+			const particle = new Class({
+				id: i,
+				ctx,
+				x,
+				y,
+				w: WIDTH,
+				h: HEIGHT,
+				vx,
+				vy,
+				r: size,
+				mass: size,
+				defaultColor: PARTICLE_COLOR,
+				collideColor: PARTICLE_COLLIDE_COLOR,
+				gridPosition,
+			});
+
+			particles.push(particle);
+
+		}
+
+
 
 	}
 
@@ -180,17 +268,21 @@ const createParticle = (particleLength, particleRadius) => {
  */
 const repaint = () => {
 
-	ctx.fillStyle = `${BG_COLOR}`;
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	if (ctx && !activeUIs.useKonva) {
+
+		ctx.fillStyle = `${BG_COLOR}`;
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	}
 
 }
-
 
 /**
  * Slider change handler
  * @param {String} slider name
  * @param {Number} value
  */
+
 let db;
 const sliderChange = (slider, value) => {
 
@@ -202,7 +294,7 @@ const sliderChange = (slider, value) => {
 
 	case 'line-length':
 
-		PARTICLE_BETWEEN_LINE_DIST = value;
+		PARTICLE_MIN_DIST = value;
 
 		break;
 
@@ -212,8 +304,12 @@ const sliderChange = (slider, value) => {
 		clearTimeout(db);
 		db = setTimeout(() => {
 
-			createParticle(value, PARTICLE_RADIUS);
-			reset();
+			if (isOkToApplyBehavior) {
+
+				createParticle(PARTICLE_LENGTH, value);
+				reset();
+
+			}
 
 		}, 300);
 
@@ -225,10 +321,26 @@ const sliderChange = (slider, value) => {
 		clearTimeout(db);
 		db = setTimeout(() => {
 
-			createParticle(PARTICLE_LENGTH, value);
-			reset();
+			if (isOkToApplyBehavior) {
+
+				createParticle(PARTICLE_LENGTH, value);
+				reset();
+
+			}
 
 		}, 300);
+
+		break;
+
+	case 'range':
+
+		PARTICLE_MIN_DIST = value;
+
+		break;
+
+	case 'magnitude':
+
+		MAGNITUDE = value;
 
 		break;
 
@@ -272,9 +384,54 @@ const createSlider = () => {
 			// slider js
 			const slider = new BootstrapSlider(`#${id}`, sliderOption);
 			slider.on('slide', sliderChange.bind(null, slider));
+
+			// TODO, opt this.
+			((s) => {
+
+				sliderChange(s, s.getValue());
+
+			})(slider);
+
 			sliders.push(slider);
 
 		});
+
+	}
+
+	return;
+
+}
+
+const initCanvas = () => {
+
+	if (activeUIs.useKonva) {
+
+		if (konvaStage) {
+
+			konvaStage.clear();
+			konvaStage.destroyChildren();
+			konvaStage.destroy();
+
+		}
+
+		// with konva
+		konvaStage = new Konva.Stage({
+			container: 'canvas-container',
+			width: WIDTH,
+			height: HEIGHT,
+		});
+
+		canvas = konvaStage.toCanvas();
+		ctx = canvas.getContext('2d');
+
+	} else {
+
+		// vanila canvas
+		canvas = document.createElement('canvas');
+		ctx = canvas.getContext('2d');
+
+		canvasContainer.innerHTML = '';
+		canvasContainer.appendChild(canvas);
 
 	}
 
@@ -293,16 +450,17 @@ const CanvasParticle = {
 		const form = this.el.getElementsByTagName('form')[0];
 
 		form.addEventListener('change', this.formChange.bind(this), false);
-
 		window.addEventListener('resize', _.debounce(this.resize.bind(this), 300), false);
-		canvas.addEventListener('mousedown', _.throttle(this.mouseHandler.bind(this), 150), false);
-		canvas.addEventListener('mouseup', _.throttle(this.mouseHandler.bind(this), 150), false);
-		canvas.addEventListener('mousemove', _.throttle(this.mouseHandler.bind(this), 150), false);
 
 		// Hammer
 		this.hammer = new Hammer.Manager(this.el);
 		this.hammer.add(new Hammer.Press());
 		this.hammer.on('press pressup', this.mouseHandler.bind(this));
+
+		// mouse events
+		canvasContainer.addEventListener('mousedown', this.mouseHandler.bind(this), false);
+		canvasContainer.addEventListener('mouseup', this.mouseHandler.bind(this), false);
+		canvasContainer.addEventListener('mousemove', _.throttle(this.mouseHandler.bind(this), 150), false);
 
 		// fetch json
 		fetch(`${window.location.href}/asset/json/canvas-particle.json`)
@@ -325,18 +483,8 @@ const CanvasParticle = {
 				UI.forEach((uiGroup, i) => uiHTML += createUIGroup(uiGroup, i));
 				form.innerHTML = uiHTML;
 
-				setTimeout(() => {
-
-					// dispatch resize
-					const re = new Event('resize');
-					window.dispatchEvent(re);
-
-					req = requestAnimationFrame(this.tick.bind(this));
-
-					// default active
-					this.setActiveUI();
-
-				}, 500);
+				// default active
+				this.setActiveUI();
 
 			});
 
@@ -378,6 +526,8 @@ const CanvasParticle = {
 
 	setActiveUI() {
 
+		cancelAnimationFrame(requestAF);
+
 		// find which ui is active
 		activeUIs = UI
 			.reduce((activeUIs, uiGroup) => activeUIs.concat(uiGroup.children.filter(ui => ui.active)), [])
@@ -389,7 +539,18 @@ const CanvasParticle = {
 
 		currentBehavior = activeUIs.value;
 
-		console.log(`currentBehavior: ${currentBehavior}`, 'activeUIs: ', activeUIs);
+		console.log(`currentBehavior: ${currentBehavior} || `, 'activeUIs: ', activeUIs);
+
+		const allBehaviors = UI[0].children.reduceRight((total, prev, i) => total.concat(prev.value), []);
+
+		allBehaviors.forEach(b => this.el.classList.remove(b));
+		this.el.classList.add(currentBehavior);
+
+
+		// call chain
+		isOkToApplyBehavior = false;
+
+		initCanvas();
 
 		// creat sliders
 		createSlider();
@@ -399,6 +560,18 @@ const CanvasParticle = {
 
 		// position particles randomly
 		reset();
+
+		// start request animation frame
+		requestAF = requestAnimationFrame(this.tick.bind(this));
+
+		window.dispatchEvent(new Event('resize'));
+
+		// dispatch resize
+		setTimeout(() => {
+
+			isOkToApplyBehavior = true;
+
+		}, 500);
 
 	},
 
@@ -454,6 +627,8 @@ const CanvasParticle = {
 
 	resize(e) {
 
+		const { particle: { grid } } = activeUIs;
+
 		// over 768
 		const isLargeScreen = window.matchMedia('screen and (min-width: 768px)').matches;
 
@@ -472,13 +647,40 @@ const CanvasParticle = {
 
 		}
 
-		canvas.width = WIDTH;
-		canvas.height = HEIGHT;
+		// boundary(wall)
+		boundary = {
+			left: 0,
+			right: WIDTH,
+			top: 0,
+			bottom: HEIGHT,
+		};
 
-		for (let i = 0; i < PARTICLE_LENGTH; ++i) {
+		// resize either canvas or konva stage
+		if (activeUIs.useKonva) {
+
+			konvaStage.setHeight(HEIGHT);
+			konvaStage.setWidth(WIDTH);
+
+		} else {
+
+			canvas.width = WIDTH;
+			canvas.height = HEIGHT;
+
+		}
+
+		// center
+		center = { x: canvas.width * .5, y: canvas.height * .5 };
+
+		// update normal particles
+		for (let i = 0; i < particles.length; ++i) {
+
+			const p = particles[i];
+
+			if (!(p instanceof Particle)) continue;
 
 			particles[i].state.w = WIDTH;
 			particles[i].state.h = HEIGHT;
+			particles[i].state.gridPosition = grid ? getGridPosition(grid.col + 1, grid.row + 1, Math.round(WIDTH / grid.col), Math.round(HEIGHT / grid.row), i) : void 0;
 
 		}
 
@@ -486,13 +688,11 @@ const CanvasParticle = {
 
 	render() {
 
+		// proceed when ready
+		if (!isOkToApplyBehavior) return;
+
 		// repaint
 		repaint();
-
-		const center = { x: canvas.width * .5, y: canvas.height * .5 };
-
-		// behaviors
-		if (!isOkToApplyBehavior) return;
 
 		switch (currentBehavior) {
 
@@ -534,13 +734,13 @@ const CanvasParticle = {
 		case 'line-between':
 
 			// check in-between distance against neibors and draw line`
-			lineBetween(particles, ctx, PARTICLE_BETWEEN_LINE_DIST);
+			lineBetween(particles, ctx, PARTICLE_MIN_DIST);
 
 			break;
 
-		case 'spring':
+		case 'nodes':
 
-			// spring
+			// nodes spring
 			spring(particles, mousePosition, ctx, PARTICLE_COLOR);
 
 			break;
@@ -552,25 +752,31 @@ const CanvasParticle = {
 
 			break;
 
+		case 'grid':
+
+			// grid
+			grid(particles, activeUIs.particle.grid, boundary, mousePosition, ctx, PARTICLE_MIN_DIST, MAGNITUDE);
+			// gridKonva(konvaStage, activeUIs.particle.grid, boundary, mousePosition);
+
+			break;
+
 		default:
 			//
 		}
 
 		// simple boundary check & bounce
-		boundaryCheck(particles, {
-			left: 0,
-			right: WIDTH,
-			top: 0,
-			bottom: HEIGHT,
-		});
+		boundaryCheck(particles, boundary);
+
 
 	},
 
 	tick() {
 
+		// do things
 		this.render();
 
-		req = requestAnimationFrame(this.tick.bind(this));
+		requestAF = requestAnimationFrame(this.tick.bind(this));
+
 
 	},
 
