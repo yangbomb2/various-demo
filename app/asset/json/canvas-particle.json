@@ -189,7 +189,7 @@
 				"type": "radio",
 				"value": "grid",
 				"label": "grid",
-				"active": true,
+				"active": false,
 				"disabled": false,
 				"description": "Grid + proximity",
 				"particle": {
