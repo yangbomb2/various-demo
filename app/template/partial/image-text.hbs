@@ -1,26 +1,18 @@
 <main>
-
   <div class="container">
-
     <div class="info">
       <h2>Image processing/mapping demo(ver 1.0.1)</h2>
       <p>This is a simple test with image + text texture. Select preloaded images or update an image to test.<br>Source image is located on the left, textured image is located on the right.</p>
     </div>
-
     <div class="row">
-
       <!-- image + canvas -->
       <div class="col-sm-6" id="image-container"></div>
       <div class="col-sm-6" id="canvas-container"></div>
-
       <!-- color picker -->
       <div class="color-picker"></div>
-
     </div>
-
     <!-- ui container-->
     <div class="ui-container row">
-
       <!-- preload images select -->
       <div class="col-sm-6">
         <div class="form-group">
@@ -34,13 +26,10 @@
           </select>
         </div>
       </div>
-
       <!-- blendmode select -->
       <div class="col-sm-6">
         <div class="form-group">
-
           <label for="blend-mode">Select blend mode</label>
-
           <select name="blend-mode" id="blend-mode" class="form-control">
             <option value="source-atop">source-atop</option>
             <option value="source-over">source-over</option>
@@ -55,9 +44,7 @@
             <option value="xor">xor</option>
           </select>
         </div>
-
       </div>
-
       <!-- font size number input-->
       <div class="col-sm-6">
         <div class="form-group ui-input">
@@ -65,7 +52,6 @@
           <input type="number" class="form-control" id="font-size" placeholder="Font size" value="18">
         </div>
       </div>
-
       <!-- background text input-->
       <div class="col-sm-6">
         <div class="form-group ui-input">
@@ -73,7 +59,6 @@
           <input type="text" class="form-control" id="bg-color" placeholder="Background color">
         </div>
       </div>
-
       <!-- all cap checkbox(checkboxes)-->
       <div class="col-sm-6">
         <div class="ui-input">
@@ -84,7 +69,6 @@
           </div>
         </div>
       </div>
-
       <!-- text area as texture-->
       <div class="col-sm-12">
         <div class="ui-input">
@@ -92,7 +76,6 @@
           <textarea name="text-area" id="text-area" rows="8" cols="80" placeholder="Write something here..."></textarea>
         </div>
       </div>
-
       <!-- file upload-->
       <div class="col-sm-6">
         <div class="form-group ui-input image-upload">
@@ -103,9 +86,7 @@
           </label>
         </div>
       </div>
-
     </div>
-
     <div class="ui-container row">
       <!-- buttons -->
       <div class="col-sm-12">
@@ -115,8 +96,5 @@
         </div>
       </div>
     </div>
-
   </div>
-
-
 </main>

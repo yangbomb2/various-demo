@@ -16,7 +16,7 @@ const ENV = process.env.NODE_ENV || 'development';
 
 // post css related
 const postImport = require('postcss-import');
-const autoprefixer = require('autoprefixer'); // https://github.com/postcss/autoprefixer
+const autoprefixer = require('autoprefixer');
 
 // when app is served in subdomain
 // const basename = '/demo/image-texture/';
@@ -33,9 +33,6 @@ const config = {
 	DEV_ENV: 'development',
 	PRODUCTION_ENV: 'production',
 };
-
-console.log('===== ENV: ', ENV, '======');
-
 // default plugins
 let WP_PLUGINS = [
 	// see code spliting(https:// webpack.github.io/docs/code-splitting.html)
@@ -60,9 +57,7 @@ let WP_PLUGINS = [
 		{ from: __dirname + '/app/asset/font', to: __dirname + '/dist/asset/font' },
 		{ from: __dirname + '/app/asset/json', to: __dirname + '/dist/asset/json' },
 	]),
-
 ];
-
 
 if (ENV === config.DEV_WATCH || ENV === config.DEV_ENV) {
 
@@ -158,7 +153,6 @@ const STYLE_LOADERS = ExtractTextPlugin.extract({
 	],
 });
 
-
 module.exports = {
 	context: path.resolve(__dirname, config.app),
 	entry: {
@@ -171,9 +165,7 @@ module.exports = {
 			'simple-color-picker',
 		],
 	},
-
 	devtool: ENV === config.DEV_ENV ? 'inline-source-map' : false,
-
 	// see https://webpack.js.org/configuration/dev-server/
 	// note. the below can be a part of CLI in package.json
 	devServer: {
@@ -182,15 +174,12 @@ module.exports = {
 		open: true,
 		noInfo: true,
 	},
-
 	output: {
 		path: path.resolve(__dirname, config.dist),
 		filename: 'script/[name].js',
 		publicPath: ENV === config.PRODUCTION_ENV ? basename : '/',
 	},
-
 	module: {
-
 		rules: [
 			// webpack 2,3 doens't support preLoaders. use enforce: "pre"
 			// es lint
@@ -350,7 +339,6 @@ module.exports = {
 
 		],
 	},
-
 	// shortcut, so we can avoid ../../
 	// https:// webpack.js.org/configuration/resolve/#resolve-alias
 	resolve: {
@@ -379,7 +367,6 @@ module.exports = {
 
 		},
 	},
-
 	// webpack plugins
 	plugins: WP_PLUGINS,
 };
