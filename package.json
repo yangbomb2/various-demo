@@ -61,7 +61,7 @@
     "image-webpack-loader": "^4.0.0",
     "jest": "^22.1.4",
     "jest-cli": "^22.1.4",
-    "node-sass": "^4.5.3",
+    "node-sass": "^7.0.0",
     "postcss-import": "^11.0.0",
     "postcss-loader": "^2.0.10",
     "resolve-url-loader": "^2.2.1",
